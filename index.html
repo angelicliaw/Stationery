@@ -71,7 +71,8 @@ svg{display:block;flex-shrink:0}
 
 /* ================= Primary tabs ================= */
 .tabbar{height:62px;background:var(--sf-bg);border-bottom:1px solid var(--bd-4);display:flex;align-items:stretch;padding:0 24px;gap:8px}
-.ptab{padding:0 10px;color:var(--tx-4);font-size:16px;font-weight:500;position:relative}
+.ptabs{display:flex;gap:8px;align-items:stretch}
+.ptab{padding:0 10px;flex-shrink:0;white-space:nowrap;color:var(--tx-4);font-size:16px;font-weight:500;position:relative}
 .ptab:hover{color:var(--tx-2)}
 .ptab.active{color:var(--tx-1)}
 .ptab.active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--tx-theme)}
@@ -377,6 +378,119 @@ table.mt td.pad0{padding:0 8px}
 .inp-trail.clickable .inp{cursor:pointer}
 .inp-trail.clickable svg{pointer-events:none}
 .inp-trail.open .inp{border-color:var(--bd-theme)}
+
+/* ================= RWD ================= */
+.mscroll{overflow-x:auto}
+.m-show{display:none}
+@media (max-width:1280px){
+  .prod-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:1100px){
+  .page.narrow{padding:28px 24px}
+  .cart-wrap{grid-template-columns:1fr 320px}
+}
+@media (max-width:1024px){
+  .tabbar{height:auto;flex-wrap:wrap;padding:0 16px;row-gap:0}
+  .ptab{height:56px;flex-shrink:0}
+  .tab-actions{width:100%;margin-left:0;justify-content:flex-end;height:48px;border-top:1px solid var(--bd-4)}
+  .tab-actions:empty{display:none}
+  .prod-grid{grid-template-columns:repeat(3,1fr)}
+  .cart-wrap{grid-template-columns:1fr;padding:0 16px 24px}
+  .side{margin-top:0}
+  .toolbar{flex-wrap:wrap}
+  .toolbar .tb-left{flex-wrap:wrap}
+  .toolbar .tb-right{margin-left:auto}
+  .inv-top{flex-wrap:wrap;gap:12px}
+  .inv-top .tb-right{margin-left:auto}
+}
+@media (max-width:900px){
+  .apply-wrap{grid-template-columns:1fr;min-height:0}
+  .cat-panel{display:flex;gap:6px;padding:8px;overflow-x:auto;border-radius:12px}
+  .cat-panel button,.cat-panel button.all{width:auto;flex-shrink:0;padding:0 14px;height:36px;border-radius:18px;white-space:nowrap}
+  .cat-panel button.all svg{display:none}
+  .header-right{gap:16px}
+  .plant .select-wrap{width:160px}
+}
+@media (max-width:768px){
+  .app-header{padding:0 12px;gap:8px;height:60px}
+  .brand img{height:38px}
+  .brand span{font-size:18px}
+  .plant-l,.uname{display:none}
+  .plant .select-wrap{width:140px}
+  .plant .select-wrap select{height:36px;font-size:14px;padding-right:32px}
+  .ptabs{width:100%;overflow-x:auto;scrollbar-width:none;gap:4px}
+  .ptabs::-webkit-scrollbar{display:none}
+  .toolbar .tb-left{width:100%}
+  .toolbar .tb-left>*{min-width:0}
+  .toolbar .seg{flex:1 1 100%}
+  .ptab{padding:0 8px}
+  .tab-actions{gap:20px}
+  .subbar{padding:0 12px;height:56px}
+  .page{padding:16px}
+  .page.narrow{padding:20px 16px}
+  .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .seg::-webkit-scrollbar{display:none}
+  .toolbar .tb-left>*{max-width:100%}
+  .toolbar .tb-right{width:100%;justify-content:flex-end;gap:20px!important}
+  .inv-top .tb-right{width:100%;justify-content:flex-end;gap:20px!important;padding-top:0!important}
+  .stats{width:100%}
+  .stat{flex:1;width:auto;min-width:0;height:auto}
+  .inv-filter{flex-wrap:wrap}
+  .pager{flex-direction:column;align-items:flex-start;gap:10px;padding:12px 16px}
+  .pager .right{flex-wrap:wrap;gap:10px}
+  .modal-mask{padding:16px 10px 24px}
+  .modal-head{padding:0 10px 0 16px;height:56px}
+  .modal-body{padding:12px;gap:14px;max-height:calc(100vh - 110px)}
+  .kv{grid-template-columns:112px 1fr}
+  .kv>.v{border-right:0}
+  .kv>.v.full{grid-column:auto}
+  .kv>.k{justify-content:flex-start;white-space:normal;font-size:14px;line-height:18px}
+  .kv>div{min-height:44px}
+  .kv>.v.alt{background:#fff}
+  .sect{overflow-x:auto}
+  table.mt{min-width:480px}
+  .req-cards{gap:12px}
+  .rcard{width:100%}
+  #toasts{width:calc(100vw - 24px);top:64px}
+  .toast{max-width:100%;padding:11px 16px 11px 12px;font-size:15px}
+  .popc{max-width:calc(100vw - 16px)}
+  .apply-head{flex-wrap:wrap;gap:12px;align-items:flex-start}
+  .btn-pill{height:44px;font-size:16px;padding:0 18px}
+  .prod-tools{flex-wrap:wrap;gap:8px 12px}
+  .prod-tools .inp-icon{order:3;width:100%}
+  .prod-tools .act{margin-left:auto}
+}
+@media (max-width:640px){
+  .brand span{display:none}
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .prod-panel{padding:10px}
+  .pcard h4{font-size:16px;margin:12px 4px 0}
+  .pcard .code,.pcard .stock{padding:0 4px}
+  .pcard .foot{gap:8px;margin-top:14px}
+  .pcard .stepper button{width:26px}
+  .pcard .stepper input{width:34px;font-size:16px}
+  .apply-head .btn-pill{position:fixed;right:16px;bottom:16px;z-index:50}
+  .m-hide{display:none}
+  .cart-top{height:auto;padding:12px 0;flex-wrap:wrap;gap:6px}
+  .cart-table th,.cart-table td{padding:0 8px}
+  .cart-table .nm{font-size:15px;line-height:20px;white-space:normal}
+  .cart-table .thumb,.cart-table .thumb-ph{width:36px;height:36px}
+  .stat{padding:10px 12px}
+  .stat .l{font-size:14px}
+  .header-right{gap:10px}
+  .plant .select-wrap{width:130px}
+  .modal-head h3{font-size:16px}
+  .modal-head .btn.sm{padding:0 10px}
+  .toolbar .tb-left .select-wrap,.toolbar .tb-left .inp-trail{flex:1 1 140px;width:auto!important}
+  #screen-report .toolbar .tb-left{flex-wrap:wrap}
+}
+@media (max-width:480px){
+  .m-thumb{display:none}
+  .m-show{display:inline}
+  .cart-table th:first-child,.cart-table td:first-child{width:40px!important;padding-right:0}
+  .cart-table td:last-child,.cart-table th:last-child{width:40px!important;padding:0 4px}
+  .cart-table .nm{font-size:15px}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -387,21 +501,23 @@ table.mt td.pad0{padding:0 8px}
   <button class="hamburger" title="選單" data-ic="menu"></button>
   <div class="brand"><img src="images/logo.png" alt="大成"><span>智慧辦公室平台</span></div>
   <div class="header-right">
-    <div class="plant">所在廠區:
+    <div class="plant"><span class="plant-l">所在廠區:</span>
       <div class="select-wrap"><select><option>大成台南總部</option><option>大成台北分公司</option><option>大成台中廠區</option></select><span class="chev" data-ic="chev"></span></div>
     </div>
     <button class="bell" title="通知"><span data-ic="bell"></span><span class="badge">1</span></button>
-    <div class="user"><span data-ic="user"></span>林益凡<span data-ic="caret"></span></div>
+    <div class="user"><span data-ic="user"></span><span class="uname">林益凡</span><span data-ic="caret"></span></div>
   </div>
 </header>
 
 <!-- 主選單（主頁顯示） -->
 <nav class="tabbar" id="tabbar">
+  <div class="ptabs">
   <button class="ptab" data-screen="apply">領用申請</button>
   <button class="ptab" data-screen="myreq">我的領用</button>
   <button class="ptab" data-screen="overview">領用總覽</button>
   <button class="ptab" data-screen="inventory">庫存管理</button>
   <button class="ptab" data-screen="report">領用月報表</button>
+  </div>
   <div class="tab-actions" id="tabActions"></div>
 </nav>
 <!-- 子頁標題列（子頁顯示） -->
@@ -442,7 +558,7 @@ table.mt td.pad0{padding:0 8px}
         <button class="act danger" id="btnClearCart" onclick="askClearCart(this)"><span data-ic="trash"></span>清空購物車</button></div>
       <div class="cart-table">
         <table>
-          <thead><tr><th style="width:56px"><input type="checkbox" class="chk" id="cartAll" onchange="cartToggleAll(this.checked)"></th><th style="width:50px"></th><th colspan="2">品項</th><th></th><th style="width:60px"></th></tr></thead>
+          <thead><tr><th style="width:56px"><input type="checkbox" class="chk" id="cartAll" onchange="cartToggleAll(this.checked)"></th><th style="width:50px" class="m-hide"></th><th style="width:64px;padding-right:0" class="m-thumb">品項</th><th><span class="m-show">品項</span></th><th style="width:1%"></th><th style="width:60px"></th></tr></thead>
           <tbody id="cartBody"></tbody>
         </table>
         <div class="empty hidden" id="cartEmpty">購物車是空的</div>
@@ -485,12 +601,12 @@ table.mt td.pad0{padding:0 8px}
 <!-- ===== 03-00 領用總覽 ===== -->
 <section class="screen" id="screen-overview">
   <div class="page">
-    <div class="row-between" style="margin-bottom:16px">
-      <div style="display:flex;gap:8px;align-items:center">
+    <div class="row-between toolbar" style="margin-bottom:16px">
+      <div class="tb-left" style="display:flex;gap:8px;align-items:center">
         <div class="seg" id="ovSeg"></div>
         <div class="inp-trail clickable" style="width:270px"><input class="inp" id="ovRange" readonly style="height:40px" onclick="openRangePicker(this)"><span data-ic="calendar"></span></div>
       </div>
-      <div style="display:flex;gap:28px">
+      <div class="tb-right" style="display:flex;gap:28px">
         <button class="act dark" id="btnExpandAll" onclick="ovExpandAll()"><span data-ic="expand"></span><span>展開所有清單</span></button>
         <button class="act" onclick="ovBatch('confirm')"><span data-ic="check"></span>確認領用</button>
         <button class="act danger" onclick="ovBatch('return')"><span data-ic="undo"></span>退回</button>
@@ -517,7 +633,7 @@ table.mt td.pad0{padding:0 8px}
         <div class="stat"><div class="l">本月進貨總量</div><div class="n" id="stIn">57</div></div>
         <div class="stat"><div class="l">庫存不足品項</div><div class="n bad" id="stLow">1</div></div>
       </div>
-      <div style="display:flex;gap:28px;padding-top:8px">
+      <div class="tb-right" style="display:flex;gap:28px;padding-top:8px">
         <button class="act dark" onclick="go('log')"><span data-ic="history"></span>異動紀錄</button>
         <button class="act dark" onclick="go('adjust')"><span data-ic="pencil"></span>調整庫存</button>
         <button class="act" onclick="openBatch()"><span data-ic="plus"></span>批量進貨</button>
@@ -587,13 +703,13 @@ table.mt td.pad0{padding:0 8px}
 <!-- ===== 05-00 領用月報表 ===== -->
 <section class="screen" id="screen-report">
   <div class="page">
-    <div class="row-between" style="margin-bottom:16px">
-      <div style="display:flex;gap:8px">
+    <div class="row-between toolbar" style="margin-bottom:16px">
+      <div class="tb-left" style="display:flex;gap:8px">
         <div class="select-wrap" style="width:180px"><select id="rpCo" onchange="renderReport()"><option value="">公司別</option></select><span class="chev" data-ic="chev"></span></div>
         <div class="select-wrap" style="width:180px"><select id="rpCc" onchange="renderReport()"><option value="">成本中心</option></select><span class="chev" data-ic="chev"></span></div>
         <div class="inp-trail clickable" style="width:180px"><input class="inp" id="rpMonth" value="2026/1月" readonly onclick="openMonthPicker(this)"><span data-ic="calendar"></span></div>
       </div>
-      <div style="display:flex;align-items:center;gap:14px">
+      <div class="tb-right" style="display:flex;align-items:center;gap:14px">
         <label style="display:flex;align-items:center;gap:6px;color:var(--tx-4);font-size:18px;cursor:pointer"><input type="checkbox" class="chk" id="rpAllTop" onchange="rpToggleAll(this.checked)">全選</label>
         <button class="icon-btn" title="輸出月報表" onclick="rpExport()" data-ic="download"></button>
       </div>
@@ -668,7 +784,7 @@ table.mt td.pad0{padding:0 8px}
   <div class="modal-body">
     <div class="sect"><div class="kv" style="grid-template-columns:140px 1fr"><div class="k" style="border-bottom:0">領用地點</div><div class="v pad0" style="border-bottom:0"><input class="inp" id="tsLoc"></div></div></div>
     <div class="sect">
-      <table class="mt"><thead><tr><th style="width:62px">序號</th><th style="width:150px">可領用時間起</th><th style="width:150px">可領用時間迄</th><th>可領用星期</th><th style="width:44px"></th></tr></thead><tbody id="tsBody"></tbody></table>
+      <div class="mscroll"><table class="mt" style="min-width:820px"><thead><tr><th style="width:62px">序號</th><th style="width:150px">可領用時間起</th><th style="width:150px">可領用時間迄</th><th>可領用星期</th><th style="width:44px"></th></tr></thead><tbody id="tsBody"></tbody></table></div>
       <div class="add-row"><button class="lnk" onclick="tsAdd()"><span data-ic="plus"></span>可領用時段</button></div>
     </div>
   </div>
@@ -861,7 +977,7 @@ function popconfirm(anchor,{text,q=false,onOk}){
   el.innerHTML=`<div class="msg"><span class="ic ${q?'q':''}">${q?IC.ques:IC.bang}</span><span>${text}</span></div><div class="btns"><button class="btn ok">確定</button><button class="btn no">取消</button></div>`;
   document.body.appendChild(el);
   const w=el.offsetWidth;
-  let left=r.right+window.scrollX-w+16; left=Math.max(12,left);
+  let left=r.right+window.scrollX-w+16; left=Math.min(left,window.scrollX+document.documentElement.clientWidth-w-8); left=Math.max(8,left);
   el.style.left=left+'px'; el.style.top=(r.bottom+window.scrollY+14)+'px';
   const arrowRight=(left+w)-(r.left+window.scrollX+r.width/2)-10;
   el.style.setProperty('--arrow',Math.max(12,Math.min(w-30,arrowRight))+'px');
@@ -976,10 +1092,10 @@ function renderCart(){
 function drawCart(){
   $('cartBody').innerHTML=CART.map((c,i)=>{const p=PRODUCTS.find(x=>x.sku===c.sku);return `<tr>
     <td><input type="checkbox" class="chk" ${c.on?'checked':''} onchange="CART[${i}].on=this.checked;drawCart()"></td>
-    <td>${i+1}</td>
-    <td style="width:64px">${p.img?`<img class="thumb" src="${p.img}">`:'<span class="thumb-ph"></span>'}</td>
+    <td class="m-hide">${i+1}</td>
+    <td style="width:64px" class="m-thumb">${p.img?`<img class="thumb" src="${p.img}">`:'<span class="thumb-ph"></span>'}</td>
     <td><div class="nm">${esc(p.name)}</div><div class="cd">${p.code}</div></td>
-    <td style="text-align:right">${stepperHTML(c.qty,p.stock,`cartQty.bind(null,${i})`)}</td>
+    <td style="text-align:right;white-space:nowrap">${stepperHTML(c.qty,p.stock,`cartQty.bind(null,${i})`)}</td>
     <td><button class="icon-btn danger" onclick="askDelCart(${i},this)">${IC.trash}</button></td></tr>`;}).join('');
   $('cartEmpty').classList.toggle('hidden',CART.length>0);
   const on=CART.filter(c=>c.on);
@@ -1490,8 +1606,14 @@ function exportXlsx(rows,sheet,filename){
   try{XLSX.writeFile(wb,filename);return true;}catch(e){toast('error','此環境不支援下載');return false;}
 }
 function downloadSample(){
-  const a=document.createElement('a');a.href='files/restock_sample.xlsx';a.download='批量進貨範例檔案.xlsx';document.body.appendChild(a);a.click();a.remove();
-  toast('success','已下載範例檔案');
+  if(!window.XLSX){toast('error','Excel 元件載入失敗，請檢查網路');return;}
+  const H=['料號','品項','進貨量','異動單價 (元)','異動原因'];
+  const ws=XLSX.utils.aoa_to_sheet([H,['PAP0001','A4影印紙80磅',30,40,'進貨'],['PEN0001','原子筆 (藍) 0.5mm',100,10,'進貨'],['OTH0002','AA電池',50,40,'進貨']]);
+  ws['!cols']=[{wch:14},{wch:24},{wch:10},{wch:16},{wch:20}];
+  const note=XLSX.utils.aoa_to_sheet([['欄位','說明'],['料號','必填，需與庫存管理中的料號相同，例如 PAP0001'],['品項','選填，僅供對照，系統以料號為準'],['進貨量','必填，正整數'],['異動單價 (元)','選填，留空則沿用原單價'],['異動原因','選填，留空預設為「進貨」']]);
+  note['!cols']=[{wch:16},{wch:48}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'進貨清單');XLSX.utils.book_append_sheet(wb,note,'填寫說明');
+  try{XLSX.writeFile(wb,'批量進貨範例檔案.xlsx');toast('success','已下載範例檔案');}catch(e){toast('error','此環境不支援下載');}
 }
 function batchDownloadPicked(){if(!batchFileObj)return;const u=URL.createObjectURL(batchFileObj);const a=document.createElement('a');a.href=u;a.download=batchFileName;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
 
