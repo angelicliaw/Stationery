@@ -198,6 +198,8 @@ table.grid tr.subhead td{background:var(--sf-bg)!important;color:var(--tx-2)}
 .pages button{min-width:26px;height:26px;border-radius:50%;color:var(--tx-2);font-size:16px}
 .pages button.active{border:1.5px solid var(--ln-filled);color:var(--tx-theme)}
 .pages button.nav{color:var(--tx-4)}
+.pages button:not(.active):not(:disabled):hover{background:var(--ln-std-hover)}
+.pages button:disabled{opacity:.35;cursor:not-allowed}
 .pager .right{display:flex;align-items:center;gap:16px}
 .pager .select-wrap{width:126px}
 .pager .jump{width:62px}
@@ -619,7 +621,7 @@ table.mt td.pad0{padding:0 8px}
           <th>申請單號</th><th>申請領用日期</th><th>申請領用時段</th><th>狀態</th><th>動作</th><th>填單人員</th><th>申請人員</th><th>公司別</th><th>成本中心</th><th>聯絡電話/分機</th><th>備註</th><th>管理者訊息</th><th>實際領用時間</th><th>填單日期</th>
         </tr></thead><tbody id="ovBody"></tbody></table>
       </div>
-      <div class="pager" data-pager="100"></div>
+      <div class="pager" id="ovPager"></div>
     </div>
   </div>
 </section>
@@ -907,6 +909,7 @@ const PRODUCTS=[
   {sku:'FIL0001',name:'L型資料夾',code:'FIL',cat:'檔案收納',stock:80,unit:'個',img:IMG('FIL0001')},
   {sku:'BND0001',name:'訂書針 10號',code:'BND',cat:'裝訂',stock:60,unit:'盒',img:IMG('BND0001')},
   {sku:'CUT0001',name:'辦公剪刀',code:'CUT',cat:'裁切工具',stock:30,unit:'把',img:IMG('CUT0001')},
+  {sku:'OTH0002',name:'AA電池',code:'OTH',cat:'事務耗材',stock:123,unit:'顆',img:IMG('OTH0002')},
 ];
 const qtyDraft={}; PRODUCTS.forEach(p=>qtyDraft[p.sku]=p.stock>0?1:0);
 let CART=[{sku:'PEN0001',qty:1,on:true},{sku:'PEN0002',qty:120,on:false},{sku:'PEN0007',qty:1,on:true}];
@@ -927,6 +930,7 @@ MY_HISTORY.forEach(h=>h.items=h.items||[{sku:'OTH0002',name:'AA電池',qty:2,act
 
 /* 領用總覽 */
 const OV_STATUS={'待領用':'info','已領用':'success','未領用':'warning','退回':'error','取消':'inactive'};
+const pad2=n=>String(n).padStart(2,'0');
 const ovSeed=[ // [狀態, 填單/申請人員, 填單日期, 申請領用日期, 實際領用時間]
  ['待領用','10011275-黃維興','2026/01/19 11:20','2026/01/22'],['待領用','10011275-黃維興','2026/01/18 16:32','2026/01/23'],['待領用','10011273-梁思齊','2026/01/16 13:19','2026/01/26'],
  ['已領用','10011272-張曉熙','2026/01/16 10:37','2026/01/20','2026/01/20 13:25:25'],['已領用','10011273-梁思齊','2026/01/12 09:44','2026/01/15','2026/01/15 13:42:10'],['已領用','10011271-陳俊凱','2026/01/07 15:04','2026/01/09','2026/01/09 11:18:03'],
@@ -934,13 +938,44 @@ const ovSeed=[ // [狀態, 填單/申請人員, 填單日期, 申請領用日期
 let ORDERS=ovSeed.map((s,i)=>({no:'OSR202601200'+String(i+1).padStart(2,'0'),date:s[3],slot:'13:00-14:00',status:s[0],filler:s[1],user:s[1],
   co:'G001-大成長城企業股份有限公司',cc:'1600-資訊處',tel:'#5311',note:'-',msg:s[0]==='退回'?'退回原因':'-',actual:s[4]||'',fill:s[2],
   items:[{sku:'OTH0002',name:'AA電池',qty:2,act:2,unit:'顆'},{sku:'PEN0004',name:'藍色油性原子筆',qty:2,act:2,unit:'支'}],open:i===0}));
+/* 補充假資料，讓分頁有內容：2025/12/01～2026/01/30 */
+(function(){
+  const POOL=[['OTH0002','AA電池','顆'],['OTH0001','AAA電池','顆'],['PAP0001','A4影印紙80磅','包'],['PEN0001','原子筆 (藍) 0.5mm','支'],['PEN0002','原子筆 (紅) 0.5mm','支'],['PEN0004','藍色油性原子筆','支'],['PAP0002','A4厚磅紙','包']];
+  const PPL=['10011275-黃維興','10011273-梁思齊','10011272-張曉熙','10011271-陳俊凱','10011270-許昕元','10011274-林益凡'];
+  const SL=['08:00-10:00','11:00-14:00','13:00-14:00'];
+  const PAST=['已領用','已領用','已領用','未領用','已領用','退回','已領用','取消'];
+  for(let k=0;k<28;k++){
+    const d=new Date(2026,0,30-k*2-(k%3===0?1:0));
+    if(d<new Date(2025,11,1))break;
+    const ds=`${d.getFullYear()}/${pad2(d.getMonth()+1)}/${pad2(d.getDate())}`;
+    const f=new Date(d);f.setDate(d.getDate()-2-(k%3));
+    const fs=`${f.getFullYear()}/${pad2(f.getMonth()+1)}/${pad2(f.getDate())} ${pad2(9+k%8)}:${pad2((k*17)%60)}`;
+    const st=d>new Date(2026,0,20)?'待領用':PAST[k%PAST.length];
+    const who=PPL[k%PPL.length],a=POOL[k%POOL.length],b=POOL[(k+3)%POOL.length],q=1+k%4;
+    ORDERS.push({no:'',date:ds,slot:SL[k%3],status:st,filler:who,user:who,co:'G001-大成長城企業股份有限公司',cc:'1600-資訊處',tel:'#53'+pad2(10+k),note:'-',
+      msg:st==='退回'?'庫存臨時調動':'-',actual:st==='已領用'?`${ds} ${SL[k%3].slice(0,2)}:${pad2((k*7)%60)}:00`:'',fill:fs,
+      items:[{sku:a[0],name:a[1],qty:q,act:q,unit:a[2]},{sku:b[0],name:b[1],qty:2,act:2,unit:b[2]}],open:false});
+  }
+  ORDERS.sort((x,y)=>y.date.localeCompare(x.date)||y.fill.localeCompare(x.fill));
+  const seq={};ORDERS.forEach(o=>{const key=o.fill.slice(0,10).replace(/\//g,'');seq[key]=(seq[key]||0)+1;o.no='OSR'+key+String(seq[key]).padStart(3,'0');});
+  ORDERS.forEach((o,i)=>o.open=i===0);
+})();
+let ovPage=1,ovSize=10;
+function ovPagerHTML(total,pages){
+  const nums=[];
+  if(pages<=7){for(let i=1;i<=pages;i++)nums.push(i);}
+  else{nums.push(1);if(ovPage>4)nums.push('…');for(let i=Math.max(2,ovPage-2);i<=Math.min(pages-1,ovPage+2);i++)nums.push(i);if(ovPage<pages-3)nums.push('…');nums.push(pages);}
+  return `<div class="pages"><button class="nav" ${ovPage<=1?'disabled':''} onclick="ovGo(${ovPage-1})">${IC.chevL}</button>${nums.map(n=>n==='…'?'<span style="color:var(--tx-4)">···</span>':`<button class="${n===ovPage?'active':''}" onclick="ovGo(${n})">${n}</button>`).join('')}<button class="nav" ${ovPage>=pages?'disabled':''} onclick="ovGo(${ovPage+1})">${IC.chevR}</button></div>
+  <div class="right"><span>共 ${total} 筆資料</span><div class="select-wrap"><select onchange="ovSize=+this.value;ovPage=1;renderOverview()">${[10,20,50].map(n=>`<option value="${n}" ${n===ovSize?'selected':''}>${n} 條/頁</option>`).join('')}</select><span class="chev">${IC.chev}</span></div><span>跳頁</span><input class="inp jump" placeholder="${ovPage}/${pages}" onkeydown="if(event.key==='Enter'){ovGo(parseInt(this.value)||ovPage)}" onblur="if(this.value)ovGo(parseInt(this.value)||ovPage)"></div>`;
+}
+function ovGo(n){ovPage=n;renderOverview();const t=document.querySelector('#screen-overview .panel');if(t&&t.getBoundingClientRect().top<0)t.scrollIntoView({block:'start'});}
 
 /* 庫存 */
 let CATEGORIES=[{name:'其它',code:'OTH',fixed:true},{name:'紙品',code:'PAP'},{name:'文具',code:'PEN'}];
 let UNITS=[{name:'其它',fixed:true},{name:'支'},{name:'顆'},{name:'包'}];
 let INVENTORY=[
  {sku:'OTH0001',cat:'其它',name:'AAA電池',stock:77,used:66,safe:100,shelf:false,unit:'顆',price:40,note:'-'},
- {sku:'OTH0002',cat:'其它',name:'AA電池',stock:123,used:66,safe:100,shelf:true,unit:'顆',price:40,note:'-'},
+ {sku:'OTH0002',cat:'其它',name:'AA電池',stock:123,used:66,safe:100,shelf:true,unit:'顆',price:40,note:'-',img:IMG('OTH0002')},
  {sku:'PAP0001',cat:'紙品',name:'A4影印紙80磅',stock:123,used:66,safe:100,shelf:true,unit:'包',price:40,note:'-',img:IMG('PAP0001')},
  {sku:'PAP0002',cat:'紙品',name:'A4厚磅紙',stock:123,used:66,safe:100,shelf:true,unit:'包',price:40,note:'-'},
  {sku:'PEN0001',cat:'文具',name:'原子筆 (藍) 0.5mm',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
@@ -1186,7 +1221,6 @@ function askCancelReq(i,btn){
 /* ================= 03 領用總覽 ================= */
 let ovFilter='全部';const ovChecked=new Set();
 /* ===== 日期區間 / 月份 / 時間 選單 ===== */
-const pad2=n=>String(n).padStart(2,'0');
 const dkey=d=>d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
 const dfmt=d=>`${d.getFullYear()}.${pad2(d.getMonth()+1)}.${pad2(d.getDate())}`;
 const TODAY=new Date(2026,0,20);
@@ -1243,7 +1277,7 @@ function rangeQuick(n){
   if(!n)rpTmp={s:null,e:null};else rpTmp={s:new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()-n+1),e:new Date(TODAY)};
   applyRange();
 }
-function applyRange(){ovRange={...rpTmp};syncRangeLabel();closePicker();ovChecked.clear();renderOverview();}
+function applyRange(){ovPage=1;ovRange={...rpTmp};syncRangeLabel();closePicker();ovChecked.clear();renderOverview();}
 /* 月份 */
 let rpYM={y:2026,m:1},mpYear=2026;
 function openMonthPicker(input){mpYear=rpYM.y;showPicker(input,monthHTML);}
@@ -1271,8 +1305,11 @@ function tpNow(){const d=new Date();tpVal={h:d.getHours(),m:d.getMinutes()};pick
 function tpDone(){pickAnchor.value=`${pad2(tpVal.h)}:${pad2(tpVal.m)}`;closePicker();}
 
 function renderOverview(){
-  $('ovSeg').innerHTML=['全部','待領用','已領用','未領用','退回','取消'].map(f=>`<button class="${f===ovFilter?'active':''}" onclick="ovFilter='${f}';ovChecked.clear();renderOverview()">${f}</button>`).join('');
-  const list=ORDERS.filter(o=>ovMatch(o));
+  $('ovSeg').innerHTML=['全部','待領用','已領用','未領用','退回','取消'].map(f=>`<button class="${f===ovFilter?'active':''}" onclick="ovFilter='${f}';ovPage=1;ovChecked.clear();renderOverview()">${f}</button>`).join('');
+  const all=ORDERS.filter(o=>ovMatch(o));
+  const pages=Math.max(1,Math.ceil(all.length/ovSize));ovPage=Math.min(Math.max(1,ovPage),pages);
+  const list=all.slice((ovPage-1)*ovSize,ovPage*ovSize);
+  $('ovPager').innerHTML=ovPagerHTML(all.length,pages);
   $('ovBody').innerHTML=list.map(o=>{const i=ORDERS.indexOf(o);return `<tr class="main">
     <td><input type="checkbox" class="chk" ${ovChecked.has(i)?'checked':''} onchange="this.checked?ovChecked.add(${i}):ovChecked.delete(${i});ovSyncAll()"></td>
     <td style="padding:0"><button class="expander" onclick="ORDERS[${i}].open=!ORDERS[${i}].open;renderOverview()">${o.open?IC.minusSm:IC.plusSm}</button></td>
@@ -1286,13 +1323,14 @@ function renderOverview(){
   const allOpen=list.length&&list.every(o=>o.open);
   $('btnExpandAll').innerHTML=(allOpen?IC.collapse:IC.expand)+`<span>${allOpen?'收合所有清單':'展開所有清單'}</span>`;
 }
+function ovPageList(){const all=ORDERS.filter(o=>ovMatch(o));return all.slice((ovPage-1)*ovSize,ovPage*ovSize);}
 function ovSyncAll(){
-  const vis=ORDERS.map((o,i)=>i).filter(i=>ovMatch(ORDERS[i]));
+  const vis=ovPageList().map(o=>ORDERS.indexOf(o));
   const n=vis.filter(i=>ovChecked.has(i)).length;
   $('ovAll').checked=vis.length>0&&n===vis.length;$('ovAll').indeterminate=n>0&&n<vis.length;
 }
-function ovToggleAll(v){ORDERS.forEach((o,i)=>{if(ovMatch(o)){v?ovChecked.add(i):ovChecked.delete(i);}});renderOverview();}
-function ovExpandAll(){const list=ORDERS.filter(o=>ovMatch(o));const open=!list.every(o=>o.open);list.forEach(o=>o.open=open);renderOverview();}
+function ovToggleAll(v){ovPageList().forEach(o=>{const i=ORDERS.indexOf(o);v?ovChecked.add(i):ovChecked.delete(i);});renderOverview();}
+function ovExpandAll(){const list=ovPageList();const open=!list.every(o=>o.open);list.forEach(o=>o.open=open);renderOverview();}
 function ovBatch(kind){
   const sel=[...ovChecked].sort((a,b)=>a-b);
   if(!sel.length){toast('warning','請先勾選領用單');return;}
@@ -1352,7 +1390,7 @@ function submitAddOrder(){
   if(!$('aoTel').value.trim()){$('aoTel').classList.add('err');toast('warning','請填寫聯絡電話/分機');return;}
   const p=PEOPLE.find(x=>x.id===$('aoUser').value);
   const n=ORDERS.length+1;
-  ORDERS.unshift({no:'OSR202601200'+String(n).padStart(2,'0'),date:$('aoDate').value.slice(0,10),slot:$('aoTime').value,status:'已領用',filler:'10011276-許昕元',user:pname(p),co:p.co,cc:p.cc,tel:$('aoTel').value,note:$('aoNote').value||'-',msg:'-',
+  ORDERS.unshift({no:'OSR20260120'+String(900+n).padStart(3,'0'),date:$('aoDate').value.slice(0,10),slot:$('aoTime').value,status:'已領用',filler:'10011276-許昕元',user:pname(p),co:p.co,cc:p.cc,tel:$('aoTel').value,note:$('aoNote').value||'-',msg:'-',
     actual:`${$('aoDate').value.slice(0,10)} ${$('aoTime').value}:00`,fill:'2026/01/20 15:26',items:aoItems.map(a=>{const it=INVENTORY.find(x=>x.sku===a.sku);return {sku:it.sku,name:it.name,qty:a.qty,act:a.qty,unit:it.unit};}),open:false});
   ovChecked.clear();closeModal('m-addorder');renderOverview();toast('success','補單成功，本領用單自動歸檔已領用。');
 }
