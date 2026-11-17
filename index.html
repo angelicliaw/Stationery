@@ -339,7 +339,46 @@ table.mt td.pad0{padding:0 8px}
 .inv-filter .select-wrap{width:166px}
 .inv-filter .select-wrap select{height:40px}
 .stick-r{position:sticky;right:0;background:inherit}
+
+/* ================= Pickers ================= */
+.picker{position:absolute;z-index:260;background:#fff;border:1px solid var(--bd-3);border-radius:12px;box-shadow:var(--sh-elevated);padding:14px;animation:tIn .15s ease-out;user-select:none}
+.pk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.pk-head .t{font-weight:600;font-size:16px}
+.pk-head button{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--tx-2)}
+.pk-head button:hover{background:var(--ln-std-hover)}
+.cal{display:grid;grid-template-columns:repeat(7,38px);row-gap:2px}
+.cal .wd{height:30px;display:grid;place-items:center;color:var(--tx-4);font-size:13px}
+.cal button{height:36px;font-size:14px;color:var(--tx-1);position:relative}
+.cal button span{display:grid;place-items:center;width:34px;height:34px;margin:auto;border-radius:50%}
+.cal button:hover span{background:var(--ln-std-hover)}
+.cal button.out{color:var(--tx-dis)}
+.cal button.today span{box-shadow:inset 0 0 0 1.5px var(--bd-theme)}
+.cal button.in{background:var(--sf-theme)}
+.cal button.s{background:linear-gradient(90deg,transparent 50%,var(--sf-theme) 50%)}
+.cal button.e{background:linear-gradient(90deg,var(--sf-theme) 50%,transparent 50%)}
+.cal button.s.e{background:none}
+.cal button.s span,.cal button.e span{background:var(--ln-filled-hover)!important;color:#fff;font-weight:600}
+.pk-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd-4);gap:10px}
+.pk-foot .hint{color:var(--tx-3);font-size:13px}
+.pk-quick{display:flex;gap:6px}
+.pk-quick button,.pk-link{height:28px;padding:0 10px;border-radius:14px;background:var(--sf-theme);color:var(--tx-theme);font-size:13px;font-weight:500}
+.pk-quick button:hover,.pk-link:hover{background:var(--sf-secondary)}
+.mgrid{display:grid;grid-template-columns:repeat(3,76px);gap:6px}
+.mgrid button{height:40px;border-radius:8px;font-size:15px;color:var(--tx-1)}
+.mgrid button:hover{background:var(--ln-std-hover)}
+.mgrid button.on{background:var(--ln-filled-hover);color:#fff;font-weight:600}
+.mgrid button.now{box-shadow:inset 0 0 0 1.5px var(--bd-theme)}
+.tcols{display:flex;gap:6px}
+.tcol{width:64px;height:216px;overflow-y:auto;scrollbar-width:thin;display:flex;flex-direction:column;gap:2px}
+.tcol .lab{position:sticky;top:0;background:#fff;color:var(--tx-4);font-size:12px;text-align:center;padding-bottom:4px}
+.tcol button{height:34px;flex-shrink:0;border-radius:8px;font-size:15px;color:var(--tx-1)}
+.tcol button:hover{background:var(--ln-std-hover)}
+.tcol button.on{background:var(--ln-filled-hover);color:#fff;font-weight:600}
+.inp-trail.clickable .inp{cursor:pointer}
+.inp-trail.clickable svg{pointer-events:none}
+.inp-trail.open .inp{border-color:var(--bd-theme)}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -449,7 +488,7 @@ table.mt td.pad0{padding:0 8px}
     <div class="row-between" style="margin-bottom:16px">
       <div style="display:flex;gap:8px;align-items:center">
         <div class="seg" id="ovSeg"></div>
-        <div class="inp-trail" style="width:270px"><input class="inp" value="2025.12.01  →  2026.01.31" readonly style="height:40px;cursor:pointer"><span data-ic="calendar"></span></div>
+        <div class="inp-trail clickable" style="width:270px"><input class="inp" id="ovRange" readonly style="height:40px" onclick="openRangePicker(this)"><span data-ic="calendar"></span></div>
       </div>
       <div style="display:flex;gap:28px">
         <button class="act dark" id="btnExpandAll" onclick="ovExpandAll()"><span data-ic="expand"></span><span>展開所有清單</span></button>
@@ -487,7 +526,7 @@ table.mt td.pad0{padding:0 8px}
     <div class="inv-filter">
       <div class="seg" id="invSeg"></div>
       <div class="select-wrap"><select id="invCat" onchange="renderInventory()"></select><span class="chev" data-ic="chev"></span></div>
-      <button class="icon-btn" style="margin-left:auto" title="下載" onclick="toast('success','已輸出庫存報表')" data-ic="download"></button>
+      <button class="icon-btn" style="margin-left:auto" title="下載" onclick="invExport()" data-ic="download"></button>
     </div>
     <div class="panel">
       <div class="tscroll" style="min-height:560px">
@@ -552,7 +591,7 @@ table.mt td.pad0{padding:0 8px}
       <div style="display:flex;gap:8px">
         <div class="select-wrap" style="width:180px"><select id="rpCo" onchange="renderReport()"><option value="">公司別</option></select><span class="chev" data-ic="chev"></span></div>
         <div class="select-wrap" style="width:180px"><select id="rpCc" onchange="renderReport()"><option value="">成本中心</option></select><span class="chev" data-ic="chev"></span></div>
-        <div class="inp-trail" style="width:180px"><input class="inp" id="rpMonth" value="2026/1月" readonly style="cursor:pointer"><span data-ic="calendar"></span></div>
+        <div class="inp-trail clickable" style="width:180px"><input class="inp" id="rpMonth" value="2026/1月" readonly onclick="openMonthPicker(this)"><span data-ic="calendar"></span></div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
         <label style="display:flex;align-items:center;gap:6px;color:var(--tx-4);font-size:18px;cursor:pointer"><input type="checkbox" class="chk" id="rpAllTop" onchange="rpToggleAll(this.checked)">全選</label>
@@ -607,7 +646,7 @@ table.mt td.pad0{padding:0 8px}
     <div class="sect"><div class="sect-h">基本資訊</div>
       <div class="kv">
         <div class="k">實際領用日期</div><div class="v pad0"><div class="select-wrap" style="width:100%"><select id="aoDate"></select><span class="chev" data-ic="chev"></span></div></div>
-        <div class="k">實際領用時間</div><div class="v pad0"><div class="inp-trail" style="width:100%"><input class="inp" id="aoTime" value="13:20"><span data-ic="clock"></span></div></div>
+        <div class="k">實際領用時間</div><div class="v pad0"><div class="inp-trail clickable" style="width:100%"><input class="inp" id="aoTime" value="13:20" readonly onclick="openTimePicker(this)"><span data-ic="clock"></span></div></div>
         <div class="k">填單時間</div><div class="v alt">2026/01/20 (三) 15:26</div>
         <div class="k">填單人員</div><div class="v alt">10011276-許昕元</div>
         <div class="k">申請人員</div><div class="v pad0"><div class="select-wrap" style="width:100%"><select id="aoUser" onchange="aoUserChange()"></select><span class="chev" data-ic="chev"></span></div></div>
@@ -653,11 +692,11 @@ table.mt td.pad0{padding:0 8px}
   <div class="modal-body" style="gap:12px">
     <div style="display:flex;gap:16px;align-items:flex-start;padding:0 8px;color:var(--tx-3);font-size:17px;line-height:28px">
       <span style="flex:1">請依照 [範例檔案] 之欄位格式填寫，避免匯入失敗。</span>
-      <button class="act" style="font-weight:500" onclick="toast('success','已下載範例檔案')"><span data-ic="downloadSm"></span>下載範例檔案</button>
+      <button class="act" style="font-weight:500" onclick="downloadSample()"><span data-ic="downloadSm"></span>下載範例檔案</button>
     </div>
     <div class="dropzone" id="batchDrop" onclick="document.getElementById('batchFile').click()"><span data-ic="cloud"></span>拖曳或點擊上傳</div>
     <input type="file" id="batchFile" class="hidden" onchange="batchPick(this.files[0])">
-    <div class="file-chip hidden" id="batchChip"><span data-ic="clip"></span><span id="batchName"></span><span class="sp"><button class="icon-btn" style="width:24px;height:24px;color:var(--tx-theme)" data-ic="downloadSm"></button><button class="icon-btn danger" style="width:24px;height:24px" onclick="batchClear()" data-ic="close"></button></span></div>
+    <div class="file-chip hidden" id="batchChip"><span data-ic="clip"></span><span id="batchName"></span><span class="sp"><button class="icon-btn" style="width:24px;height:24px;color:var(--tx-theme)" title="下載此檔案" onclick="batchDownloadPicked()" data-ic="downloadSm"></button><button class="icon-btn danger" style="width:24px;height:24px" onclick="batchClear()" data-ic="close"></button></span></div>
   </div>
 </div></div>
 
@@ -772,12 +811,12 @@ MY_HISTORY.forEach(h=>h.items=h.items||[{sku:'OTH0002',name:'AA電池',qty:2,act
 
 /* 領用總覽 */
 const OV_STATUS={'待領用':'info','已領用':'success','未領用':'warning','退回':'error','取消':'inactive'};
-const ovSeed=[
- ['待領用','10011275-黃維興','2026/01/03 11:20'],['待領用','10011275-黃維興','2025/12/24 16:32'],['待領用','10011273-梁思齊','2025/12/19 13:19'],
- ['已領用','10011272-張曉熙','2025/12/16 10:37'],['已領用','10011273-梁思齊','2025/12/01 09:44'],['已領用','10011271-陳俊凱','2025/11/29 15:04'],
- ['未領用','10011273-梁思齊','2025/11/27 17:01'],['未領用','10011271-陳俊凱','2025/11/24 16:55'],['退回','10011272-張曉熙','2025/11/20 09:57'],['取消','10011270-許昕元','2025/11/15 14:36']];
-let ORDERS=ovSeed.map((s,i)=>({no:'OSR202601200'+String(i+1).padStart(2,'0'),date:'2026/01/20',slot:'13:00-14:00',status:s[0],filler:s[1],user:s[1],
-  co:'G001-大成長城企業股份有限公司',cc:'1600-資訊處',tel:'#5311',note:'-',msg:s[0]==='退回'?'退回原因':'-',actual:s[0]==='已領用'?'2026/01/20 13:25:25':'',fill:s[2],
+const ovSeed=[ // [狀態, 填單/申請人員, 填單日期, 申請領用日期, 實際領用時間]
+ ['待領用','10011275-黃維興','2026/01/19 11:20','2026/01/22'],['待領用','10011275-黃維興','2026/01/18 16:32','2026/01/23'],['待領用','10011273-梁思齊','2026/01/16 13:19','2026/01/26'],
+ ['已領用','10011272-張曉熙','2026/01/16 10:37','2026/01/20','2026/01/20 13:25:25'],['已領用','10011273-梁思齊','2026/01/12 09:44','2026/01/15','2026/01/15 13:42:10'],['已領用','10011271-陳俊凱','2026/01/07 15:04','2026/01/09','2026/01/09 11:18:03'],
+ ['未領用','10011273-梁思齊','2026/01/05 17:01','2026/01/07'],['未領用','10011271-陳俊凱','2025/12/26 16:55','2025/12/30'],['退回','10011272-張曉熙','2025/12/18 09:57','2025/12/22'],['取消','10011270-許昕元','2025/12/10 14:36','2025/12/15']];
+let ORDERS=ovSeed.map((s,i)=>({no:'OSR202601200'+String(i+1).padStart(2,'0'),date:s[3],slot:'13:00-14:00',status:s[0],filler:s[1],user:s[1],
+  co:'G001-大成長城企業股份有限公司',cc:'1600-資訊處',tel:'#5311',note:'-',msg:s[0]==='退回'?'退回原因':'-',actual:s[4]||'',fill:s[2],
   items:[{sku:'OTH0002',name:'AA電池',qty:2,act:2,unit:'顆'},{sku:'PEN0004',name:'藍色油性原子筆',qty:2,act:2,unit:'支'}],open:i===0}));
 
 /* 庫存 */
@@ -834,12 +873,13 @@ function popconfirm(anchor,{text,q=false,onOk}){
 }
 document.addEventListener('click',e=>{
   if(popEl&&!popEl.contains(e.target))closePop();
+  if(pickEl&&!pickEl.contains(e.target)&&e.target!==pickAnchor)closePicker();
   document.querySelectorAll('.th-pop:not(.hidden)').forEach(p=>{if(!p.contains(e.target))p.classList.add('hidden');});
 },true);
-window.addEventListener('scroll',closePop,true);
+window.addEventListener('scroll',e=>{closePop();if(pickEl&&!pickEl.contains(e.target))closePicker();},true);
 
 function openModal(id){$(id).classList.add('open');}
-function closeModal(id){$(id).classList.remove('open');}
+function closeModal(id){closePicker();$(id).classList.remove('open');}
 
 function selectHTML(id,opts,val,attrs=''){
   return `<div class="select-wrap" style="width:100%"><select ${id?`id="${id}"`:''} ${attrs}>${opts.map(o=>{const v=typeof o==='object'?o.v:o,l=typeof o==='object'?o.l:o;return `<option value="${esc(v)}" ${v==val?'selected':''}>${esc(l)}</option>`;}).join('')}</select><span class="chev">${IC.chev}</span></div>`;
@@ -866,7 +906,7 @@ const MAIN=['apply','myreq','overview','inventory','report'];
 const SUB={cart:{title:'購物車清單',back:'apply'},additem:{title:'新增品項',back:'inventory'},adjust:{title:'調整庫存',back:'inventory'},log:{title:'異動紀錄',back:'inventory'}};
 let current='apply';
 function go(screen){
-  closePop();
+  closePop();closePicker();
   current=screen;
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='screen-'+screen));
   const sub=SUB[screen];
@@ -1029,9 +1069,94 @@ function askCancelReq(i,btn){
 
 /* ================= 03 領用總覽 ================= */
 let ovFilter='全部';const ovChecked=new Set();
+/* ===== 日期區間 / 月份 / 時間 選單 ===== */
+const pad2=n=>String(n).padStart(2,'0');
+const dkey=d=>d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+const dfmt=d=>`${d.getFullYear()}.${pad2(d.getMonth()+1)}.${pad2(d.getDate())}`;
+const TODAY=new Date(2026,0,20);
+let ovRange={s:new Date(2025,11,1),e:new Date(2026,0,31)};
+function ovMatch(o){
+  if(!(ovFilter==='全部'||o.status===ovFilter))return false;
+  if(!ovRange.s||!ovRange.e)return true;
+  const [y,m,d]=o.date.slice(0,10).split('/').map(Number);const k=y*10000+m*100+d;
+  return k>=dkey(ovRange.s)&&k<=dkey(ovRange.e);
+}
+function syncRangeLabel(){$('ovRange').value=ovRange.s&&ovRange.e?`${dfmt(ovRange.s)}  →  ${dfmt(ovRange.e)}`:'全部日期';}
+let pickEl=null,pickAnchor=null;
+function closePicker(){if(pickEl){pickEl.remove();pickEl=null;}if(pickAnchor){pickAnchor.parentElement.classList.remove('open');pickAnchor=null;}}
+function showPicker(anchor,render){
+  if(pickAnchor===anchor){closePicker();return null;}
+  closePicker();closePop();
+  const el=document.createElement('div');el.className='picker';document.body.appendChild(el);
+  pickEl=el;pickAnchor=anchor;anchor.parentElement.classList.add('open');
+  el.addEventListener('click',e=>e.stopPropagation());
+  const place=()=>{const r=anchor.getBoundingClientRect();let left=r.left+window.scrollX;left=Math.min(left,window.scrollX+document.documentElement.clientWidth-el.offsetWidth-12);
+    el.style.left=Math.max(12,left)+'px';el.style.top=(r.bottom+window.scrollY+6)+'px';};
+  el._render=()=>{el.innerHTML=render();paintIcons(el);place();};
+  el._render();return el;
+}
+/* 日期區間 */
+let rpView=null,rpTmp=null;
+function openRangePicker(input){
+  rpTmp={s:ovRange.s,e:ovRange.e};const base=ovRange.e||TODAY;rpView=new Date(base.getFullYear(),base.getMonth(),1);
+  showPicker(input,rangeHTML);
+}
+function rangeHTML(){
+  const y=rpView.getFullYear(),m=rpView.getMonth();
+  const first=new Date(y,m,1),start=new Date(y,m,1-first.getDay());
+  let cells='';
+  for(let i=0;i<42;i++){
+    const d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),k=dkey(d);
+    const s=rpTmp.s&&k===dkey(rpTmp.s),e=rpTmp.e&&k===dkey(rpTmp.e);
+    const inr=rpTmp.s&&rpTmp.e&&k>dkey(rpTmp.s)&&k<dkey(rpTmp.e);
+    cells+=`<button class="${d.getMonth()!==m?'out':''} ${k===dkey(TODAY)?'today':''} ${s?'s':''} ${e||(s&&!rpTmp.e)?'e':''} ${inr?'in':''}" onclick="rangePick(${d.getFullYear()},${d.getMonth()},${d.getDate()})"><span>${d.getDate()}</span></button>`;
+  }
+  return `<div class="pk-head"><button onclick="rpView.setMonth(rpView.getMonth()-1);pickEl._render()" data-ic="chevL"></button><span class="t">${y} 年 ${m+1} 月</span><button onclick="rpView.setMonth(rpView.getMonth()+1);pickEl._render()" data-ic="chevR"></button></div>
+  <div class="cal">${['日','一','二','三','四','五','六'].map(w=>`<span class="wd">${w}</span>`).join('')}${cells}</div>
+  <div class="pk-foot"><div class="pk-quick"><button onclick="rangeQuick(7)">近 7 天</button><button onclick="rangeQuick(30)">近 30 天</button><button onclick="rangeQuick(0)">全部</button></div>
+  <span class="hint">${rpTmp.s&&!rpTmp.e?'請選擇結束日期':'點選開始日期'}</span></div>`;
+}
+function rangePick(y,m,d){
+  const dt=new Date(y,m,d);
+  if(!rpTmp.s||rpTmp.e){rpTmp={s:dt,e:null};}
+  else{if(dkey(dt)<dkey(rpTmp.s)){rpTmp={s:dt,e:rpTmp.s};}else rpTmp.e=dt;applyRange();return;}
+  if(m!==rpView.getMonth())rpView=new Date(y,m,1);
+  pickEl._render();
+}
+function rangeQuick(n){
+  if(!n)rpTmp={s:null,e:null};else rpTmp={s:new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()-n+1),e:new Date(TODAY)};
+  applyRange();
+}
+function applyRange(){ovRange={...rpTmp};syncRangeLabel();closePicker();ovChecked.clear();renderOverview();}
+/* 月份 */
+let rpYM={y:2026,m:1},mpYear=2026;
+function openMonthPicker(input){mpYear=rpYM.y;showPicker(input,monthHTML);}
+function monthHTML(){
+  return `<div class="pk-head"><button onclick="mpYear--;pickEl._render()" data-ic="chevL"></button><span class="t">${mpYear} 年</span><button onclick="mpYear++;pickEl._render()" data-ic="chevR"></button></div>
+  <div class="mgrid">${Array.from({length:12},(_,i)=>i+1).map(m=>`<button class="${mpYear===rpYM.y&&m===rpYM.m?'on':''} ${mpYear===TODAY.getFullYear()&&m===TODAY.getMonth()+1?'now':''}" onclick="pickMonth(${m})">${m} 月</button>`).join('')}</div>`;
+}
+function pickMonth(m){rpYM={y:mpYear,m};$('rpMonth').value=`${mpYear}/${m}月`;closePicker();rpChecked.clear();renderReport();}
+/* 時間 */
+let tpVal={h:13,m:20};
+function openTimePicker(input){
+  const [h,m]=input.value.split(':').map(Number);tpVal={h:h||0,m:m||0};
+  const el=showPicker(input,timeHTML);if(el)scrollTimeCols();
+}
+function timeHTML(){
+  const hs=Array.from({length:24},(_,i)=>i),ms=Array.from({length:12},(_,i)=>i*5);
+  if(!ms.includes(tpVal.m))ms.push(tpVal.m),ms.sort((a,b)=>a-b);
+  return `<div class="tcols"><div class="tcol" id="tpH"><div class="lab">時</div>${hs.map(h=>`<button class="${h===tpVal.h?'on':''}" onclick="tpSet('h',${h})">${pad2(h)}</button>`).join('')}</div>
+  <div class="tcol" id="tpM"><div class="lab">分</div>${ms.map(m=>`<button class="${m===tpVal.m?'on':''}" onclick="tpSet('m',${m})">${pad2(m)}</button>`).join('')}</div></div>
+  <div class="pk-foot"><button class="pk-link" onclick="tpNow()">現在</button><button class="btn ok sm" onclick="tpDone()">確定</button></div>`;
+}
+function scrollTimeCols(){['tpH','tpM'].forEach(id=>{const c=$(id),on=c.querySelector('.on');if(on)c.scrollTop=on.offsetTop-c.clientHeight/2+on.offsetHeight/2;});}
+function tpSet(k,v){const st={h:$('tpH').scrollTop,m:$('tpM').scrollTop};tpVal[k]=v;pickAnchor.value=`${pad2(tpVal.h)}:${pad2(tpVal.m)}`;pickEl._render();$('tpH').scrollTop=st.h;$('tpM').scrollTop=st.m;}
+function tpNow(){const d=new Date();tpVal={h:d.getHours(),m:d.getMinutes()};pickAnchor.value=`${pad2(tpVal.h)}:${pad2(tpVal.m)}`;pickEl._render();scrollTimeCols();}
+function tpDone(){pickAnchor.value=`${pad2(tpVal.h)}:${pad2(tpVal.m)}`;closePicker();}
+
 function renderOverview(){
   $('ovSeg').innerHTML=['全部','待領用','已領用','未領用','退回','取消'].map(f=>`<button class="${f===ovFilter?'active':''}" onclick="ovFilter='${f}';ovChecked.clear();renderOverview()">${f}</button>`).join('');
-  const list=ORDERS.filter(o=>ovFilter==='全部'||o.status===ovFilter);
+  const list=ORDERS.filter(o=>ovMatch(o));
   $('ovBody').innerHTML=list.map(o=>{const i=ORDERS.indexOf(o);return `<tr class="main">
     <td><input type="checkbox" class="chk" ${ovChecked.has(i)?'checked':''} onchange="this.checked?ovChecked.add(${i}):ovChecked.delete(${i});ovSyncAll()"></td>
     <td style="padding:0"><button class="expander" onclick="ORDERS[${i}].open=!ORDERS[${i}].open;renderOverview()">${o.open?IC.minusSm:IC.plusSm}</button></td>
@@ -1040,18 +1165,18 @@ function renderOverview(){
     <td>${o.filler}</td><td>${o.user}</td><td><span class="truncate" title="${esc(o.co)}">${esc(o.co)}</span></td><td>${o.cc}</td><td>${o.tel}</td><td>${esc(o.note)}</td><td>${esc(o.msg)}</td><td>${o.actual?`<span class="truncate" style="max-width:130px" title="${o.actual}">${o.actual}</span>`:''}</td><td>${o.fill}</td></tr>`+
     (o.open?`<tr class="subhead"><td></td><td></td><td colspan="4">料號</td><td colspan="3">品項</td><td colspan="2">申請數量</td><td colspan="3">實際領用數量</td><td colspan="2">單位</td></tr>`+
       o.items.map(it=>`<tr class="sub"><td></td><td></td><td colspan="4">${it.sku}</td><td colspan="3">${esc(it.name)}</td><td colspan="2">${it.qty}</td><td colspan="3">${o.status==='已領用'?it.act:''}</td><td colspan="2">${it.unit}</td></tr>`).join(''):'');}).join('')
-    ||`<tr><td colspan="16" class="empty" style="height:200px">此狀態沒有領用單</td></tr>`;
+    ||`<tr><td colspan="16" class="empty" style="height:200px">沒有符合條件的領用單</td></tr>`;
   ovSyncAll();
   const allOpen=list.length&&list.every(o=>o.open);
   $('btnExpandAll').innerHTML=(allOpen?IC.collapse:IC.expand)+`<span>${allOpen?'收合所有清單':'展開所有清單'}</span>`;
 }
 function ovSyncAll(){
-  const vis=ORDERS.map((o,i)=>i).filter(i=>ovFilter==='全部'||ORDERS[i].status===ovFilter);
+  const vis=ORDERS.map((o,i)=>i).filter(i=>ovMatch(ORDERS[i]));
   const n=vis.filter(i=>ovChecked.has(i)).length;
   $('ovAll').checked=vis.length>0&&n===vis.length;$('ovAll').indeterminate=n>0&&n<vis.length;
 }
-function ovToggleAll(v){ORDERS.forEach((o,i)=>{if(ovFilter==='全部'||o.status===ovFilter){v?ovChecked.add(i):ovChecked.delete(i);}});renderOverview();}
-function ovExpandAll(){const list=ORDERS.filter(o=>ovFilter==='全部'||o.status===ovFilter);const open=!list.every(o=>o.open);list.forEach(o=>o.open=open);renderOverview();}
+function ovToggleAll(v){ORDERS.forEach((o,i)=>{if(ovMatch(o)){v?ovChecked.add(i):ovChecked.delete(i);}});renderOverview();}
+function ovExpandAll(){const list=ORDERS.filter(o=>ovMatch(o));const open=!list.every(o=>o.open);list.forEach(o=>o.open=open);renderOverview();}
 function ovBatch(kind){
   const sel=[...ovChecked].sort((a,b)=>a-b);
   if(!sel.length){toast('warning','請先勾選領用單');return;}
@@ -1061,7 +1186,7 @@ function ovBatch(kind){
   kind==='confirm'?openConfirm(ok):openReturn(ok);
 }
 function orderBlock(o,n,editAct){
-  const rows=[['申請單號',o.no],['申請領用時段',`2026/01/22 (五)  ${o.slot}`],['填單時間','2026/01/20 (三)  15:26'],['填單人員',o.filler],['申請人員',o.user],['公司別',o.co,{title:o.co}],['成本中心',o.cc],['聯絡電話/分機',o.tel],['備註',o.note,{full:1}]];
+  const rows=[['申請單號',o.no],['申請領用時段',`${o.date}  ${o.slot}`],['填單時間','2026/01/20 (三)  15:26'],['填單人員',o.filler],['申請人員',o.user],['公司別',o.co,{title:o.co}],['成本中心',o.cc],['聯絡電話/分機',o.tel],['備註',o.note,{full:1}]];
   return `<div class="sect"><div class="sect-h">#${n} 基本資訊</div><div class="kv">${kvHTML(rows)}</div></div>
   <div class="sect"><div class="sect-h">#${n} 申請品項</div><table class="mt"><thead><tr><th>料號</th><th>品項</th><th>申請數量</th>${editAct?'<th>實際領用數量</th>':''}<th>單位</th></tr></thead><tbody>${o.items.map((it,k)=>`<tr><td>${it.sku}</td><td>${esc(it.name)}</td><td>${it.qty}</td>${editAct?`<td class="pad0" data-o="${ORDERS.indexOf(o)}" data-k="${k}">${stepperHTML(it._act,120,`cfQty.bind(null,${ORDERS.indexOf(o)},${k})`)}</td>`:''}<td>${it.unit}</td></tr>`).join('')}</tbody></table></div>`;
 }
@@ -1209,15 +1334,38 @@ function askDelItem(sku,btn){const r=INVENTORY.find(x=>x.sku===sku);popconfirm(b
 /* 批量進貨 */
 let batchFileName='';
 function openBatch(){batchClear();openModal('m-batch');}
-function batchPick(f){if(!f)return;batchFileName=f.name;$('batchName').textContent=f.name;$('batchChip').classList.remove('hidden');}
-function batchClear(){batchFileName='';$('batchFile').value='';$('batchChip').classList.add('hidden');}
+let batchFileObj=null;
+function batchPick(f){if(!f)return;batchFileObj=f;batchFileName=f.name;$('batchName').textContent=f.name;$('batchChip').classList.remove('hidden');}
+function batchClear(){batchFileObj=null;batchFileName='';$('batchFile').value='';$('batchChip').classList.add('hidden');}
 (function(){const dz=$('batchDrop');['dragenter','dragover'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('drag');}));
   ['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove('drag');}));dz.addEventListener('drop',ev=>batchPick(ev.dataTransfer.files[0]));})();
 function submitBatch(){
-  if(!batchFileName){toast('warning','請先上傳檔案');return;}
+  if(!batchFileObj){toast('warning','請先上傳檔案');return;}
   if(!/\.(xlsx|xls)$/i.test(batchFileName)){toast('error','檔案格式錯誤');return;}
-  closeModal('m-batch');toast('success','匯入成功');
+  if(!window.XLSX){toast('error','Excel 元件載入失敗，請檢查網路');return;}
+  const fr=new FileReader();
+  fr.onload=()=>{
+    let rows;
+    try{const wb=XLSX.read(fr.result,{type:'array'});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});}
+    catch(e){toast('error','檔案格式錯誤');return;}
+    const key=(r,...ks)=>{for(const k of Object.keys(r)){if(ks.some(x=>k.replace(/\s/g,'').startsWith(x)))return r[k];}return '';};
+    if(!rows.length||!Object.keys(rows[0]).some(k=>k.trim()==='料號')||!Object.keys(rows[0]).some(k=>k.trim()==='進貨量')){toast('error','檔案格式錯誤');return;}
+    const bad=[];let ok=0;
+    rows.forEach((r,n)=>{
+      const sku=String(key(r,'料號')).trim(),q=parseInt(key(r,'進貨量'));
+      const it=INVENTORY.find(x=>x.sku===sku);
+      if(!it||!q||q<=0){bad.push(n+2);return;}
+      const pb=it.price,pr=parseFloat(key(r,'異動單價'));it.stock+=q;if(pr>0)it.price=pr;
+      addLog(it,'進貨',q,pb,it.price,String(key(r,'異動原因')).trim()||'進貨');ok++;
+    });
+    if(!ok){toast('error','檔案格式錯誤');return;}
+    closeModal('m-batch');renderInventory();
+    toast('success',`匯入成功，共 ${ok} 筆`);
+    if(bad.length)toast('warning',`第 ${bad.join('、')} 列料號不存在或進貨量有誤，已略過`);
+  };
+  fr.readAsArrayBuffer(batchFileObj);
 }
+
 /* 分類管理 */
 let catDraft=[],unitDraft=[];
 function openCategory(){catDraft=CATEGORIES.map(c=>({...c}));unitDraft=UNITS.map(u=>({...u}));drawCatMgr();openModal('m-category');}
@@ -1322,13 +1470,37 @@ function renderReport(){
 function rpVisible(){const co=$('rpCo').value,cc=$('rpCc').value,kw=($('rpSearch').value||'').trim();return REPORT.map((r,i)=>i).filter(i=>{const r=REPORT[i];return (!co||r.co===co)&&(!cc||r.cc===cc)&&(!kw||r.name.includes(kw));});}
 function rpSync(){const v=rpVisible(),n=v.filter(i=>rpChecked.has(i)).length;[$('rpAll'),$('rpAllTop')].forEach(c=>{c.checked=v.length>0&&n===v.length;c.indeterminate=n>0&&n<v.length;});}
 function rpToggleAll(on){rpVisible().forEach(i=>on?rpChecked.add(i):rpChecked.delete(i));renderReport();}
-function rpExport(){const n=rpVisible().filter(i=>rpChecked.has(i)).length;if(!n){toast('warning','請先勾選要輸出的資料');return;}toast('success',`已輸出月報表（${n} 筆）`);}
+function rpExport(){
+  const ids=rpVisible().filter(i=>rpChecked.has(i));
+  if(!ids.length){toast('warning','請先勾選要輸出的資料');return;}
+  const data=ids.map(i=>{const r=REPORT[i];return {'公司別':r.co,'成本中心':r.cc,'料號':r.sku,'類別':r.cat,'品項':r.name,'單價 (元)':r.price,'總領用數量':r.qty,'總領用金額 (元)':r.price*r.qty};});
+  if(exportXlsx(data,'領用月報表',`領用月報表_${rpYM.y}-${String(rpYM.m).padStart(2,'0')}.xlsx`))toast('success',`已輸出月報表（${ids.length} 筆）`);
+}
+function invExport(){
+  const cv=$('invCat').value,kw=($('invSearch').value||'').trim();
+  const list=INVENTORY.filter(r=>(invFilter==='全部'||(invFilter==='庫存不足'?low(r):!low(r)))&&(!cv||r.cat===cv)&&(!kw||r.name.includes(kw)));
+  const data=list.map(r=>({'料號':r.sku,'類別':r.cat,'品項':r.name,'目前庫存數':r.stock,'已領用數':r.used,'安全庫存數':r.safe,'庫存狀態':low(r)?'庫存不足':'庫存安全','狀態':r.shelf?'上架':'下架','單位':r.unit,'單價 (元)':r.price,'備註':r.note}));
+  if(exportXlsx(data,'庫存','庫存報表_2026-01-20.xlsx'))toast('success',`已輸出庫存報表（${data.length} 筆）`);
+}
+function exportXlsx(rows,sheet,filename){
+  if(!window.XLSX){toast('error','Excel 元件載入失敗，請檢查網路');return false;}
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=Object.keys(rows[0]||{}).map(k=>({wch:Math.max(10,...rows.map(r=>String(r[k]).length*1.6),k.length*2)}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,sheet);
+  try{XLSX.writeFile(wb,filename);return true;}catch(e){toast('error','此環境不支援下載');return false;}
+}
+function downloadSample(){
+  const a=document.createElement('a');a.href='files/restock_sample.xlsx';a.download='批量進貨範例檔案.xlsx';document.body.appendChild(a);a.click();a.remove();
+  toast('success','已下載範例檔案');
+}
+function batchDownloadPicked(){if(!batchFileObj)return;const u=URL.createObjectURL(batchFileObj);const a=document.createElement('a');a.href=u;a.download=batchFileName;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
 
 /* ================= Init ================= */
 paintIcons();
 document.querySelectorAll('[data-pager]').forEach(p=>p.innerHTML=pagerHTML(p.dataset.pager));
 document.querySelectorAll('.inp').forEach(i=>i.addEventListener('input',()=>i.classList.remove('err')));
 document.addEventListener('input',e=>{if(e.target.classList?.contains('inp'))e.target.classList.remove('err');});
+syncRangeLabel();
 go('apply');
 </script>
 </body>
