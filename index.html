@@ -270,10 +270,17 @@ table.mt td.pad0{padding:0 8px}
 .apply-head .sub{color:var(--tx-3);margin-top:4px}
 .apply-wrap{display:grid;grid-template-columns:200px 1fr;gap:8px;align-items:stretch;min-height:780px}
 .cat-panel{background:#fff;border:1px solid var(--bd-3);border-radius:12px;padding:20px 0}
-.cat-panel button{display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:0 0 0 50px;color:var(--tx-2);text-align:left}
-.cat-panel button.all{padding-left:24px;color:var(--tx-1);font-weight:600}
-.cat-panel button:hover{background:var(--ln-std-hover)}
-.cat-panel button.active{background:var(--sf-secondary);color:var(--tx-1);font-weight:600}
+/* 品項目錄（樹狀：主類別 → 子類別） */
+.tree-row{display:flex;align-items:center;width:100%;height:40px;color:var(--tx-2);text-align:left;font-size:16px}
+.tree-row:hover{background:var(--ln-std-hover)}
+.tree-row.active{background:var(--sf-secondary);color:var(--tx-1);font-weight:600}
+.tree-row.all{padding-left:24px;color:var(--tx-1)}
+.tree-row .tw{width:24px;height:24px;margin-left:16px;margin-right:6px;display:grid;place-items:center;color:var(--tx-3);border-radius:6px;flex-shrink:0;transition:transform .15s}
+.tree-row .tw:hover{background:var(--ln-tonal-hover)}
+.tree-row .tw.closed{transform:rotate(-90deg)}
+.tree-row.sub{padding-left:46px}
+.tree-row .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:12px}
+.cat-chips{display:none}
 .prod-panel{background:var(--sf-theme);border:1px solid var(--bd-3);border-radius:12px;padding:12px 16px 20px}
 .prod-tools{display:flex;align-items:center;gap:16px;margin-bottom:12px}
 .prod-tools .cnt{color:var(--tx-3);font-size:18px}
@@ -407,9 +414,14 @@ table.mt td.pad0{padding:0 8px}
 }
 @media (max-width:900px){
   .apply-wrap{grid-template-columns:1fr;min-height:0}
-  .cat-panel{display:flex;gap:6px;padding:8px;overflow-x:auto;border-radius:12px}
-  .cat-panel button,.cat-panel button.all{width:auto;flex-shrink:0;padding:0 14px;height:36px;border-radius:18px;white-space:nowrap}
-  .cat-panel button.all svg{display:none}
+  .cat-panel{padding:8px;border-radius:12px}
+  .cat-tree-list{display:none}
+  .cat-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .cat-chips::-webkit-scrollbar{display:none}
+  .cat-chips+.cat-chips{margin-top:6px;padding-top:6px;border-top:1px solid var(--bd-4)}
+  .cat-chips button{flex-shrink:0;padding:0 14px;height:34px;border-radius:17px;white-space:nowrap;color:var(--tx-2)}
+  .cat-chips button.active{background:var(--sf-secondary);color:var(--tx-1);font-weight:600}
+  .cat-chips.subs button{height:30px;font-size:14px}
   .header-right{gap:16px}
   .plant .select-wrap{width:160px}
 }
@@ -918,7 +930,6 @@ const DATES=['2026/01/21 (四)','2026/01/22 (五)','2026/01/26 (一)','2026/01/2
 const WEEK=['星期一','星期二','星期三','星期四','星期五'];
 
 /* 領用申請品項（顯示分類為使用者端分類） */
-const APPLY_CATS=['書寫','紙品','檔案收納','裝訂','裁切工具','事務耗材'];
 const PRODUCTS=[
   {sku:'STAPEN0001',name:'原子筆 (藍) 0.5mm',code:'PEN',cat:'書寫',stock:120,img:IMG_PEN,unit:'支'},
   {sku:'STAPEN0002',name:'原子筆 (紅) 0.5mm',code:'PEN',cat:'書寫',stock:120,img:IMG_PEN,unit:'支'},
@@ -1107,20 +1118,41 @@ function go(screen){
 document.querySelectorAll('.ptab').forEach(t=>t.onclick=()=>go(t.dataset.screen));
 
 /* ================= 01 領用申請 ================= */
-let applyCat='全部品項',applySortDesc=true;
-function renderCats(){
-  $('catList').innerHTML=`<button class="all ${applyCat==='全部品項'?'active':''}" onclick="setCat('全部品項')">${IC.chev}全部品項</button>`+
-    APPLY_CATS.map(c=>`<button class="${applyCat===c?'active':''}" onclick="setCat('${c}')">${c}</button>`).join('');
+/* 品項目錄：依分類管理的主類別／子類別，品項歸屬由料號前綴（主類別代碼＋子類別代碼）判斷 */
+let applySel={main:null,sub:null},applySortDesc=true;
+const treeOpen={};
+function prodPath(p){
+  for(const c of CATEGORIES)for(const x of c.subs){const pre=c.code+x.code;if(p.sku.startsWith(pre)&&/^\d+$/.test(p.sku.slice(pre.length)))return {main:c.name,sub:x.name};}
+  return {main:null,sub:null};
 }
-function setCat(c){applyCat=c;renderProducts();}
+function renderCats(){
+  if(applySel.main&&!catOf(applySel.main))applySel={main:null,sub:null};
+  if(applySel.sub&&!subsOf(applySel.main).some(x=>x.name===applySel.sub))applySel.sub=null;
+  CATEGORIES.forEach(c=>{if(treeOpen[c.id]===undefined)treeOpen[c.id]=true;});
+  const allA=!applySel.main;
+  let h=`<div class="cat-tree-list"><button class="tree-row all ${allA?'active':''}" onclick="setCat(null)"><span class="lb">全部品項</span></button>`;
+  CATEGORIES.forEach(c=>{
+    const open=treeOpen[c.id],act=applySel.main===c.name&&!applySel.sub;
+    h+=`<button class="tree-row ${act?'active':''}" onclick="setCat('${esc(c.name)}')"><span class="tw ${open?'':'closed'}" title="${open?'收合':'展開'}" onclick="event.stopPropagation();treeOpen['${c.id}']=!treeOpen['${c.id}'];renderCats()">${IC.chev}</span><span class="lb">${esc(c.name)}</span></button>`;
+    if(open)h+=c.subs.map(x=>`<button class="tree-row sub ${applySel.main===c.name&&applySel.sub===x.name?'active':''}" onclick="setCat('${esc(c.name)}','${esc(x.name)}')"><span class="lb">${esc(x.name)}</span></button>`).join('');
+  });
+  h+=`</div>`;
+  // 手機版：主類別一列、子類別一列的滑動標籤
+  h+=`<div class="cat-chips"><button class="${allA?'active':''}" onclick="setCat(null)">全部品項</button>${CATEGORIES.map(c=>`<button class="${applySel.main===c.name?'active':''}" onclick="setCat('${esc(c.name)}')">${esc(c.name)}</button>`).join('')}</div>`;
+  const cur=catOf(applySel.main);
+  if(cur)h+=`<div class="cat-chips subs"><button class="${!applySel.sub?'active':''}" onclick="setCat('${esc(cur.name)}')">全部</button>${cur.subs.map(x=>`<button class="${applySel.sub===x.name?'active':''}" onclick="setCat('${esc(cur.name)}','${esc(x.name)}')">${esc(x.name)}</button>`).join('')}</div>`;
+  $('catList').innerHTML=h;
+}
+function setCat(main,sub){applySel={main:main||null,sub:sub||null};const c=catOf(main);if(c)treeOpen[c.id]=true;renderProducts();}
 function toggleSort(){applySortDesc=!applySortDesc;$('sortLabel').textContent=applySortDesc?'庫存多到少':'庫存少到多';renderProducts();}
 function renderProducts(){
   renderCats();
   $('pickLoc1').textContent='領用地點：'+LOCATION;
   const kw=$('prodSearch').value.trim();
-  let list=PRODUCTS.filter(p=>(applyCat==='全部品項'||p.cat===applyCat)&&(!kw||p.name.includes(kw)));
+  let list=PRODUCTS.filter(p=>{const pp=prodPath(p);return (!applySel.main||pp.main===applySel.main)&&(!applySel.sub||pp.sub===applySel.sub)&&(!kw||p.name.includes(kw));});
   list.sort((a,b)=>applySortDesc?b.stock-a.stock:a.stock-b.stock);
-  $('catName').textContent=applyCat;$('catCount').textContent=`共 ${list.length} 項`;
+  if(applySel.main&&!catOf(applySel.main))applySel={main:null,sub:null};
+  $('catName').textContent=applySel.sub?`${applySel.main} › ${applySel.sub}`:(applySel.main||'全部品項');$('catCount').textContent=`共 ${list.length} 項`;
   $('productGrid').innerHTML=list.length?list.map(p=>`<div class="pcard">
     <div class="img ${p.img?'has':''}">${p.img?`<img src="${p.img}" alt="">`:''}</div>
     <h4 title="${esc(p.name)}">${esc(p.name)}</h4><div class="code">${p.code}</div>
