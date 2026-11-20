@@ -486,6 +486,16 @@ table.mt td.pad0{padding:0 8px}
   .toolbar .tb-left .select-wrap,.toolbar .tb-left .inp-trail{flex:1 1 140px;width:auto!important}
   #screen-report .toolbar .tb-left{flex-wrap:wrap}
 }
+@media (max-width:768px){
+  table.mt.cat-tree{min-width:0;table-layout:fixed}
+  table.mt.cat-tree th:nth-child(1),table.mt.cat-tree td:nth-child(1){width:38px!important;padding:0 6px}
+  table.mt.cat-tree th:nth-child(2){width:44px!important}
+  table.mt.cat-tree td:nth-child(2){padding:0 6px}
+  table.mt.cat-tree th:nth-child(5){width:40px!important}
+  table.mt.cat-tree td.pad0{padding:0 4px}
+  table.mt.cat-tree .inp{padding:0 8px}
+  table.mt.cat-tree tr.c-add td{padding:0 8px}
+}
 @media (max-width:480px){
   .m-thumb{display:none}
   .m-show{display:inline}
@@ -493,6 +503,16 @@ table.mt td.pad0{padding:0 8px}
   .cart-table td:last-child,.cart-table th:last-child{width:40px!important;padding:0 4px}
   .cart-table .nm{font-size:15px}
 }
+
+/* 分類管理：主／子類別樹狀表格 */
+table.mt.cat-tree td+td,table.mt.cat-tree th+th{border-left:0}
+table.mt.cat-tree tbody tr td{background:#fff}
+table.mt.cat-tree tbody tr.c-sub td,table.mt.cat-tree tbody tr.c-add td{background:var(--sf-bg)}
+table.mt.cat-tree tbody tr.c-main:not(:first-child) td{border-top:1px solid var(--bd-1)}
+table.mt.cat-tree tr.c-add td{height:46px}
+table.mt.cat-tree .expander{border:1px solid var(--bd-3);background:#fff;border-radius:4px;width:24px;height:24px}
+table.mt.cat-tree .ro{padding:0 6px}
+table.mt.cat-tree .code-inp{text-transform:uppercase}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -643,14 +663,15 @@ table.mt td.pad0{padding:0 8px}
     </div>
     <div class="inv-filter">
       <div class="seg" id="invSeg"></div>
-      <div class="select-wrap"><select id="invCat" onchange="renderInventory()"></select><span class="chev" data-ic="chev"></span></div>
+      <div class="select-wrap"><select id="invCat" onchange="document.getElementById('invSub').value='';renderInventory()"></select><span class="chev" data-ic="chev"></span></div>
+      <div class="select-wrap"><select id="invSub" onchange="renderInventory()"></select><span class="chev" data-ic="chev"></span></div>
       <button class="icon-btn" style="margin-left:auto" title="下載" onclick="invExport()" data-ic="download"></button>
     </div>
     <div class="panel">
       <div class="tscroll" style="min-height:560px">
         <table class="grid lines" id="invTable"><thead><tr>
           <th style="min-width:130px"><div class="th-flex">料號<span class="th-tools"><button onclick="invSort()" data-ic="sortSm"></button></span></div></th>
-          <th>類別</th>
+          <th>類別</th><th>子類別</th>
           <th style="min-width:180px;position:relative"><div class="th-flex">品項<span class="th-tools"><button onclick="toggleThSearch(event,'invSearchPop')" data-ic="searchSm"></button></span></div>
             <div class="th-pop hidden" id="invSearchPop"><input class="inp" id="invSearch" placeholder="搜尋品項" style="width:200px;height:34px" oninput="renderInventory()"></div></th>
           <th>目前庫存數</th><th>已領用數</th><th>安全庫存數</th><th>庫存狀態</th><th>狀態</th><th>單位</th><th>單價 (元)</th><th>動作</th><th>備註</th><th style="width:84px"></th>
@@ -666,7 +687,7 @@ table.mt td.pad0{padding:0 8px}
   <div class="page">
     <div class="panel">
       <div class="tscroll">
-        <table class="grid lines"><thead><tr><th style="width:44px"></th><th>類別</th><th>料號</th><th>品項</th><th>圖片</th><th>單位</th><th>目前庫存數</th><th>安全庫存數</th><th>單價</th><th>狀態</th><th>備註</th><th style="width:50px"></th></tr></thead><tbody id="addBody"></tbody></table>
+        <table class="grid lines"><thead><tr><th style="width:44px"></th><th>類別</th><th>子類別</th><th>料號</th><th>品項</th><th>圖片</th><th>單位</th><th>目前庫存數</th><th>安全庫存數</th><th>單價</th><th>狀態</th><th>備註</th><th style="width:50px"></th></tr></thead><tbody id="addBody"></tbody></table>
       </div>
       <div class="add-row"><button class="lnk" onclick="addItemRow()"><span data-ic="plus"></span>品項</button><span class="vsep"></span><button class="lnk">批量匯入</button></div>
     </div>
@@ -678,7 +699,7 @@ table.mt td.pad0{padding:0 8px}
   <div class="page">
     <div class="panel">
       <div class="tscroll">
-        <table class="grid lines"><thead><tr><th style="width:44px"></th><th>料號</th><th>類別</th><th>品項</th><th>圖片</th><th>原庫存數</th><th>異動後庫存</th><th>原單價 (元)</th><th>異動後單價</th><th>異動原因</th><th style="width:50px"></th></tr></thead><tbody id="adjBody"></tbody></table>
+        <table class="grid lines"><thead><tr><th style="width:44px"></th><th>料號</th><th>類別</th><th>子類別</th><th>品項</th><th>圖片</th><th>原庫存數</th><th>異動後庫存</th><th>原單價 (元)</th><th>異動後單價</th><th>異動原因</th><th style="width:50px"></th></tr></thead><tbody id="adjBody"></tbody></table>
       </div>
     </div>
   </div>
@@ -822,9 +843,9 @@ table.mt td.pad0{padding:0 8px}
 <div class="modal-mask" id="m-category"><div class="modal">
   <div class="modal-head"><h3>分類管理</h3><button class="btn ok sm" onclick="saveCategory()">儲存</button><button class="btn no sm" onclick="closeModal('m-category')">取消</button></div>
   <div class="modal-body">
-    <div class="sect"><div class="sect-h">類別</div>
-      <table class="mt"><thead><tr><th style="width:62px">序號</th><th>類別名稱</th><th>料號英文代碼</th><th style="width:44px"></th></tr></thead><tbody id="catBody"></tbody></table>
-      <div class="add-row"><button class="lnk" onclick="catAdd()"><span data-ic="plus"></span>類別</button></div></div>
+    <div class="sect"><div class="sect-h" style="display:flex;align-items:center">類別<button class="act dark" id="catToggleAll" style="margin-left:auto;font-size:16px" onclick="catToggleAll()"></button></div>
+      <table class="mt cat-tree"><thead><tr><th style="width:52px"></th><th style="width:70px">序號</th><th>類別名稱</th><th>料號英文代碼</th><th style="width:52px"></th></tr></thead><tbody id="catBody"></tbody></table>
+      <div class="add-row"><button class="lnk" onclick="catAdd()"><span data-ic="plus"></span>主類別</button></div></div>
     <div class="sect"><div class="sect-h">單位名稱</div>
       <table class="mt"><tbody id="unitBody"></tbody></table>
       <div class="add-row"><button class="lnk" onclick="unitAdd()"><span data-ic="plus"></span>單位</button></div></div>
@@ -899,25 +920,25 @@ const WEEK=['星期一','星期二','星期三','星期四','星期五'];
 /* 領用申請品項（顯示分類為使用者端分類） */
 const APPLY_CATS=['書寫','紙品','檔案收納','裝訂','裁切工具','事務耗材'];
 const PRODUCTS=[
-  {sku:'PEN0001',name:'原子筆 (藍) 0.5mm',code:'PEN',cat:'書寫',stock:120,img:IMG_PEN,unit:'支'},
-  {sku:'PEN0002',name:'原子筆 (紅) 0.5mm',code:'PEN',cat:'書寫',stock:120,img:IMG_PEN,unit:'支'},
-  {sku:'PEN0003',name:'原子筆 (黑) 0.5mm',code:'PEN',cat:'書寫',stock:0,img:IMG_PEN,unit:'支'},
-  {sku:'PEN0007',name:'自動鉛筆 2B',code:'PEN',cat:'書寫',stock:120,unit:'支',img:IMG('PEN0007')},
-  {sku:'PEN0008',name:'橡皮擦',code:'PEN',cat:'書寫',stock:120,unit:'個',img:IMG('PEN0008')},
-  {sku:'PEN0009',name:'螢光筆(黃)',code:'PEN',cat:'書寫',stock:120,unit:'支',img:IMG('PEN0009')},
-  {sku:'PAP0001',name:'A4影印紙80磅',code:'PAP',cat:'紙品',stock:123,unit:'包',img:IMG('PAP0001')},
-  {sku:'FIL0001',name:'L型資料夾',code:'FIL',cat:'檔案收納',stock:80,unit:'個',img:IMG('FIL0001')},
-  {sku:'BND0001',name:'訂書針 10號',code:'BND',cat:'裝訂',stock:60,unit:'盒',img:IMG('BND0001')},
-  {sku:'CUT0001',name:'辦公剪刀',code:'CUT',cat:'裁切工具',stock:30,unit:'把',img:IMG('CUT0001')},
-  {sku:'OTH0002',name:'AA電池',code:'OTH',cat:'事務耗材',stock:123,unit:'顆',img:IMG('OTH0002')},
+  {sku:'STAPEN0001',name:'原子筆 (藍) 0.5mm',code:'PEN',cat:'書寫',stock:120,img:IMG_PEN,unit:'支'},
+  {sku:'STAPEN0002',name:'原子筆 (紅) 0.5mm',code:'PEN',cat:'書寫',stock:120,img:IMG_PEN,unit:'支'},
+  {sku:'STAPEN0003',name:'原子筆 (黑) 0.5mm',code:'PEN',cat:'書寫',stock:0,img:IMG_PEN,unit:'支'},
+  {sku:'STAPCL0001',name:'自動鉛筆 2B',code:'PCL',cat:'書寫',stock:120,unit:'支',img:IMG('PEN0007')},
+  {sku:'STAERS0001',name:'橡皮擦',code:'ERS',cat:'書寫',stock:120,unit:'個',img:IMG('PEN0008')},
+  {sku:'STAHLT0001',name:'螢光筆(黃)',code:'HLT',cat:'書寫',stock:120,unit:'支',img:IMG('PEN0009')},
+  {sku:'PAPPRINT0001',name:'A4影印紙80磅',code:'PRINT',cat:'紙品',stock:123,unit:'包',img:IMG('PAP0001')},
+  {sku:'PAPFIL0001',name:'L型資料夾',code:'FIL',cat:'檔案收納',stock:80,unit:'個',img:IMG('FIL0001')},
+  {sku:'STABND0001',name:'訂書針 10號',code:'BND',cat:'裝訂',stock:60,unit:'盒',img:IMG('BND0001')},
+  {sku:'STACUT0001',name:'辦公剪刀',code:'CUT',cat:'裁切工具',stock:30,unit:'把',img:IMG('CUT0001')},
+  {sku:'OTHBAT0002',name:'AA電池',code:'BAT',cat:'事務耗材',stock:123,unit:'顆',img:IMG('OTH0002')},
 ];
 const qtyDraft={}; PRODUCTS.forEach(p=>qtyDraft[p.sku]=p.stock>0?1:0);
-let CART=[{sku:'PEN0001',qty:1,on:true},{sku:'PEN0002',qty:120,on:false},{sku:'PEN0007',qty:1,on:true}];
+let CART=[{sku:'STAPEN0001',qty:1,on:true},{sku:'STAPEN0002',qty:120,on:false},{sku:'STAPCL0001',qty:1,on:true}];
 
 /* 我的領用 */
 let MY_ACTIVE=[
-  {no:'OSR20260120001',date:'2026/01/22 (五)',slot:'13:00-14:00',fill:'2026/01/20 (三) 15:26',tel:'#5311',note:'',items:[{sku:'OTH0002',name:'AA電池',qty:2,unit:'顆'},{sku:'PEN0004',name:'藍色油性原子筆',qty:2,unit:'支'}]},
-  {no:'OSR20260120002',date:'2026/01/22 (五)',slot:'13:00-14:00',fill:'2026/01/20 (三) 15:40',tel:'#5311',note:'',items:[{sku:'PEN0001',name:'原子筆 (藍) 0.5mm',qty:1,unit:'支'},{sku:'PEN0002',name:'原子筆 (紅) 0.5mm',qty:2,unit:'支'}]},
+  {no:'OSR20260120001',date:'2026/01/22 (五)',slot:'13:00-14:00',fill:'2026/01/20 (三) 15:26',tel:'#5311',note:'',items:[{sku:'OTHBAT0002',name:'AA電池',qty:2,unit:'顆'},{sku:'STAPEN0004',name:'藍色油性原子筆',qty:2,unit:'支'}]},
+  {no:'OSR20260120002',date:'2026/01/22 (五)',slot:'13:00-14:00',fill:'2026/01/20 (三) 15:40',tel:'#5311',note:'',items:[{sku:'STAPEN0001',name:'原子筆 (藍) 0.5mm',qty:1,unit:'支'},{sku:'STAPEN0002',name:'原子筆 (紅) 0.5mm',qty:2,unit:'支'}]},
 ];
 let MY_HISTORY=[
   {no:'OSR20251226001',fill:'2025-12-26 10:37',actual:'2025/12/26 10:37',status:'已領用',note:'辦公使用',msg:'',open:true},
@@ -926,7 +947,7 @@ let MY_HISTORY=[
   {no:'OSR20251205003',fill:'2025-12-05 11:30',actual:'-',status:'取消',note:'辦公使用',msg:''},
   {no:'OSR20251128001',fill:'2025-11-28 16:22',actual:'-',status:'退回',note:'辦公使用',msg:'庫存臨時調動'},
 ];
-MY_HISTORY.forEach(h=>h.items=h.items||[{sku:'OTH0002',name:'AA電池',qty:2,act:2,unit:'顆'},{sku:'PEN0004',name:'藍色油性原子筆',qty:2,act:2,unit:'支'}]);
+MY_HISTORY.forEach(h=>h.items=h.items||[{sku:'OTHBAT0002',name:'AA電池',qty:2,act:2,unit:'顆'},{sku:'STAPEN0004',name:'藍色油性原子筆',qty:2,act:2,unit:'支'}]);
 
 /* 領用總覽 */
 const OV_STATUS={'待領用':'info','已領用':'success','未領用':'warning','退回':'error','取消':'inactive'};
@@ -937,10 +958,10 @@ const ovSeed=[ // [狀態, 填單/申請人員, 填單日期, 申請領用日期
  ['未領用','10011273-梁思齊','2026/01/05 17:01','2026/01/07'],['未領用','10011271-陳俊凱','2025/12/26 16:55','2025/12/30'],['退回','10011272-張曉熙','2025/12/18 09:57','2025/12/22'],['取消','10011270-許昕元','2025/12/10 14:36','2025/12/15']];
 let ORDERS=ovSeed.map((s,i)=>({no:'OSR202601200'+String(i+1).padStart(2,'0'),date:s[3],slot:'13:00-14:00',status:s[0],filler:s[1],user:s[1],
   co:'G001-大成長城企業股份有限公司',cc:'1600-資訊處',tel:'#5311',note:'-',msg:s[0]==='退回'?'退回原因':'-',actual:s[4]||'',fill:s[2],
-  items:[{sku:'OTH0002',name:'AA電池',qty:2,act:2,unit:'顆'},{sku:'PEN0004',name:'藍色油性原子筆',qty:2,act:2,unit:'支'}],open:i===0}));
+  items:[{sku:'OTHBAT0002',name:'AA電池',qty:2,act:2,unit:'顆'},{sku:'STAPEN0004',name:'藍色油性原子筆',qty:2,act:2,unit:'支'}],open:i===0}));
 /* 補充假資料，讓分頁有內容：2025/12/01～2026/01/30 */
 (function(){
-  const POOL=[['OTH0002','AA電池','顆'],['OTH0001','AAA電池','顆'],['PAP0001','A4影印紙80磅','包'],['PEN0001','原子筆 (藍) 0.5mm','支'],['PEN0002','原子筆 (紅) 0.5mm','支'],['PEN0004','藍色油性原子筆','支'],['PAP0002','A4厚磅紙','包']];
+  const POOL=[['OTHBAT0002','AA電池','顆'],['OTHBAT0001','AAA電池','顆'],['PAPPRINT0001','A4影印紙80磅','包'],['STAPEN0001','原子筆 (藍) 0.5mm','支'],['STAPEN0002','原子筆 (紅) 0.5mm','支'],['STAPEN0004','藍色油性原子筆','支'],['PAPPRINT0002','A4厚磅紙','包']];
   const PPL=['10011275-黃維興','10011273-梁思齊','10011272-張曉熙','10011271-陳俊凱','10011270-許昕元','10011274-林益凡'];
   const SL=['08:00-10:00','11:00-14:00','13:00-14:00'];
   const PAST=['已領用','已領用','已領用','未領用','已領用','退回','已領用','取消'];
@@ -971,24 +992,31 @@ function ovPagerHTML(total,pages){
 function ovGo(n){ovPage=n;renderOverview();const t=document.querySelector('#screen-overview .panel');if(t&&t.getBoundingClientRect().top<0)t.scrollIntoView({block:'start'});}
 
 /* 庫存 */
-let CATEGORIES=[{name:'其它',code:'OTH',fixed:true},{name:'紙品',code:'PAP'},{name:'文具',code:'PEN'}];
+let CATEGORIES=[ // 主類別 → 子類別（兩層）；第一個主類別「其它」為系統預設
+ {id:'c1',name:'其它',code:'OTH',fixed:true,subs:[{id:'s1',name:'電池',code:'BAT'},{id:'s2',name:'公務寄件',code:'SE'}]},
+ {id:'c2',name:'紙品',code:'PAP',subs:[{id:'s3',name:'影印紙',code:'PRINT'},{id:'s4',name:'資料夾',code:'FIL'}]},
+ {id:'c3',name:'文具',code:'STA',subs:[{id:'s5',name:'原子筆',code:'PEN'},{id:'s6',name:'鉛筆',code:'PCL'},{id:'s7',name:'修正用品',code:'ERS'},{id:'s8',name:'螢光筆',code:'HLT'},{id:'s9',name:'裝訂用品',code:'BND'},{id:'s10',name:'剪刀',code:'CUT'}]},
+];
+let catSeq=100;
+const catOf=name=>CATEGORIES.find(c=>c.name===name);
+const subsOf=name=>(catOf(name)||{subs:[]}).subs;
 let UNITS=[{name:'其它',fixed:true},{name:'支'},{name:'顆'},{name:'包'}];
 let INVENTORY=[
- {sku:'OTH0001',cat:'其它',name:'AAA電池',stock:77,used:66,safe:100,shelf:false,unit:'顆',price:40,note:'-'},
- {sku:'OTH0002',cat:'其它',name:'AA電池',stock:123,used:66,safe:100,shelf:true,unit:'顆',price:40,note:'-',img:IMG('OTH0002')},
- {sku:'PAP0001',cat:'紙品',name:'A4影印紙80磅',stock:123,used:66,safe:100,shelf:true,unit:'包',price:40,note:'-',img:IMG('PAP0001')},
- {sku:'PAP0002',cat:'紙品',name:'A4厚磅紙',stock:123,used:66,safe:100,shelf:true,unit:'包',price:40,note:'-'},
- {sku:'PEN0001',cat:'文具',name:'原子筆 (藍) 0.5mm',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
- {sku:'PEN0002',cat:'文具',name:'原子筆 (紅) 0.5mm',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
- {sku:'PEN0003',cat:'文具',name:'原子筆 (黑) 0.5mm',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
- {sku:'PEN0004',cat:'文具',name:'藍色油性原子筆',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
- {sku:'PEN0005',cat:'文具',name:'紅色油性原子筆',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
- {sku:'PEN0006',cat:'文具',name:'黑色油性原子筆',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
+ {sku:'OTHBAT0001',cat:'其它',sub:'電池',name:'AAA電池',stock:77,used:66,safe:100,shelf:false,unit:'顆',price:40,note:'-'},
+ {sku:'OTHBAT0002',cat:'其它',sub:'電池',name:'AA電池',stock:123,used:66,safe:100,shelf:true,unit:'顆',price:40,note:'-',img:IMG('OTH0002')},
+ {sku:'PAPPRINT0001',cat:'紙品',sub:'影印紙',name:'A4影印紙80磅',stock:123,used:66,safe:100,shelf:true,unit:'包',price:40,note:'-',img:IMG('PAP0001')},
+ {sku:'PAPPRINT0002',cat:'紙品',sub:'影印紙',name:'A4厚磅紙',stock:123,used:66,safe:100,shelf:true,unit:'包',price:40,note:'-'},
+ {sku:'STAPEN0001',cat:'文具',sub:'原子筆',name:'原子筆 (藍) 0.5mm',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
+ {sku:'STAPEN0002',cat:'文具',sub:'原子筆',name:'原子筆 (紅) 0.5mm',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
+ {sku:'STAPEN0003',cat:'文具',sub:'原子筆',name:'原子筆 (黑) 0.5mm',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
+ {sku:'STAPEN0004',cat:'文具',sub:'原子筆',name:'藍色油性原子筆',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
+ {sku:'STAPEN0005',cat:'文具',sub:'原子筆',name:'紅色油性原子筆',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
+ {sku:'STAPEN0006',cat:'文具',sub:'原子筆',name:'黑色油性原子筆',stock:777,used:66,safe:100,shelf:true,unit:'支',price:10,note:'-',img:IMG_PEN},
 ];
 let LOG=[
- ['OTH0001','AAA電池','調整庫存',-3,'盤點調整'],['OTH0002','AA電池','領用',-6],['PAP0001','A4影印紙80磅','進貨',100],['PAP0002','A4厚磅紙','領用',-6],
- ['PEN0001','原子筆 (藍) 0.5mm','領用',-6],['PEN0002','原子筆 (紅) 0.5mm','領用',-6],['PEN0003','原子筆 (黑) 0.5mm','領用',-6],['PEN0004','藍色油性原子筆','領用',-6],
- ['PEN0005','紅色油性原子筆','進貨',100],['PEN0006','黑色油性原子筆','進貨',100]
+ ['OTHBAT0001','AAA電池','調整庫存',-3,'盤點調整'],['OTHBAT0002','AA電池','領用',-6],['PAPPRINT0001','A4影印紙80磅','進貨',100],['PAPPRINT0002','A4厚磅紙','領用',-6],
+ ['STAPEN0001','原子筆 (藍) 0.5mm','領用',-6],['STAPEN0002','原子筆 (紅) 0.5mm','領用',-6],['STAPEN0003','原子筆 (黑) 0.5mm','領用',-6],['STAPEN0004','藍色油性原子筆','領用',-6],
+ ['STAPEN0005','紅色油性原子筆','進貨',100],['STAPEN0006','黑色油性原子筆','進貨',100]
 ].map(r=>({time:'2026/01/20  13:25:25',sku:r[0],name:r[1],user:'10011270-許昕元',op:r[2],qty:r[3],after:100,pb:10,pa:10,reason:r[4]||'-'}));
 
 /* ================= Helpers ================= */
@@ -1374,14 +1402,14 @@ function openAddOrder(){
   $('aoUser').innerHTML=PEOPLE.map(p=>`<option value="${p.id}">${pname(p)}</option>`).join('');
   $('aoTel').value='#5311';$('aoNote').value='';$('aoTime').value='13:20';
   aoUserChange();
-  aoItems=[{sku:'OTH0002',qty:1},{sku:'PEN0004',qty:120}];drawAoItems();
+  aoItems=[{sku:'OTHBAT0002',qty:1},{sku:'STAPEN0004',qty:120}];drawAoItems();
   openModal('m-addorder');
 }
 function aoUserChange(){const p=PEOPLE.find(x=>x.id===$('aoUser').value);$('aoCo').textContent=p.co;$('aoCo').title=p.co;$('aoCc').textContent=p.cc;}
 function drawAoItems(){
   $('aoItems').innerHTML=aoItems.map((a,k)=>{const it=INVENTORY.find(x=>x.sku===a.sku);return `<tr>
     <td class="pad0">${selectHTML('',INVENTORY.filter(x=>x.shelf).map(x=>({v:x.sku,l:x.name})),a.sku,`onchange="aoItems[${k}].sku=this.value;drawAoItems()"`)}</td>
-    <td>${CATEGORIES.find(c=>c.name===it.cat)?.code||it.sku.slice(0,3)}</td>
+    <td>${it.sku}</td>
     <td class="pad0">${stepperHTML(a.qty,it.stock,`aoQty.bind(null,${k})`,1)}</td><td>${it.unit}</td></tr>`;}).join('');
 }
 function aoQty(k,d,el){const it=INVENTORY.find(x=>x.sku===aoItems[k].sku);let v=d===0?parseInt(el.value)||1:aoItems[k].qty+d;aoItems[k].qty=Math.max(1,Math.min(it.stock,v));drawAoItems();}
@@ -1422,15 +1450,18 @@ function renderInventory(){
   $('invSeg').innerHTML=['全部','庫存安全','庫存不足'].map(f=>`<button class="${f===invFilter?'active':''}" onclick="invFilter='${f}';renderInventory()">${f}</button>`).join('');
   const cv=$('invCat').value;
   $('invCat').innerHTML=`<option value="">文具類別</option>`+CATEGORIES.map(c=>`<option ${c.name===cv?'selected':''}>${c.name}</option>`).join('');
+  if(!catOf(cv))$('invCat').value='';
+  const sv=$('invSub').value,cv2=$('invCat').value;
+  $('invSub').innerHTML=`<option value="">子類別</option>`+subsOf(cv2).map(x=>`<option ${x.name===sv?'selected':''}>${x.name}</option>`).join('');$('invSub').disabled=!cv2;
   const kw=($('invSearch').value||'').trim();
-  let list=INVENTORY.filter(r=>(invFilter==='全部'||(invFilter==='庫存不足'?low(r):!low(r)))&&(!cv||r.cat===cv)&&(!kw||r.name.includes(kw)));
+  let list=INVENTORY.filter(r=>(invFilter==='全部'||(invFilter==='庫存不足'?low(r):!low(r)))&&(!cv||r.cat===cv)&&(!$('invSub').value||r.sub===$('invSub').value)&&(!kw||r.name.includes(kw)));
   list.sort((a,b)=>invSortAsc?a.sku.localeCompare(b.sku):b.sku.localeCompare(a.sku));
-  $('invBody').innerHTML=list.map(r=>`<tr class="main"><td>${r.sku}</td><td>${r.cat}</td><td>${esc(r.name)}</td><td>${r.stock}</td><td>${r.used}</td><td>${r.safe}</td>
+  $('invBody').innerHTML=list.map(r=>`<tr class="main"><td>${r.sku}</td><td>${r.cat}</td><td>${r.sub||'-'}</td><td>${esc(r.name)}</td><td>${r.stock}</td><td>${r.used}</td><td>${r.safe}</td>
     <td>${low(r)?'<span class="pill warning">庫存不足</span>':'<span class="pill success">庫存安全</span>'}</td>
     <td>${r.shelf?'<span class="pill success">上架</span>':'<span class="pill inactive">下架</span>'}</td>
     <td>${r.unit}</td><td>${r.price}</td><td><button class="lnk" onclick="openRestock('${r.sku}')">${IC.plus}進貨</button></td><td>${esc(r.note)}</td>
     <td><span class="row-acts" style="gap:4px"><button class="icon-btn" title="編輯" onclick="openEditItem('${r.sku}')">${IC.pencil}</button><button class="icon-btn danger" title="${r.shelf?'上架中的品項無法刪除':'刪除'}" ${r.shelf?'disabled':''} onclick="askDelItem('${r.sku}',this)">${IC.trash}</button></span></td></tr>`).join('')
-    ||`<tr><td colspan="13" class="empty" style="height:200px">查無品項</td></tr>`;
+    ||`<tr><td colspan="14" class="empty" style="height:200px">查無品項</td></tr>`;
   $('stLow').textContent=INVENTORY.filter(low).length;
 }
 function invSort(){invSortAsc=!invSortAsc;renderInventory();}
@@ -1439,7 +1470,7 @@ function addLog(r,op,qty,pb,pa,reason){LOG.unshift({time:'2026/01/20  '+new Date
 let rsSku='';
 function openRestock(sku){
   rsSku=sku;const r=INVENTORY.find(x=>x.sku===sku);
-  $('restockBody').innerHTML=`<div class="sect"><div class="kv">${kvHTML([['料號',r.sku],['類別',r.cat],['品項',r.name],['單位',r.unit],['原庫存數',r.stock],['原單價 (元)',r.price],
+  $('restockBody').innerHTML=`<div class="sect"><div class="kv">${kvHTML([['料號',r.sku],['品項',r.name],['類別',r.cat],['子類別',r.sub||'-'],['單位',r.unit],['原庫存數',r.stock],['原單價 (元)',r.price],
       ['圖片',r.img?`<img src="${r.img}" style="width:94px;height:94px;object-fit:contain;background:#fff">`:'<span class="thumb-ph" style="width:94px;height:94px"></span>',{raw:1,full:1}]])}</div></div>
     <div class="sect"><div class="kv">
       <div class="k">進貨量</div><div class="v pad0"><input class="inp" id="rsQty" type="number" min="1" placeholder="請輸入數量" oninput="$('rsAfter').textContent=${r.stock}+(parseInt(this.value)||0)"></div>
@@ -1462,8 +1493,9 @@ let edSku='',edImg=null;
 function openEditItem(sku){
   edSku=sku;const r=INVENTORY.find(x=>x.sku===sku);edImg=r.img||null;
   $('edititemBody').innerHTML=`<div class="sect"><div class="kv">
-    <div class="k">料號</div><div class="v">${r.sku}</div><div class="k">類別</div><div class="v">${r.cat}</div>
-    <div class="k">品項</div><div class="v pad0 full alt"><input class="inp" id="edName" value="${esc(r.name)}"></div>
+    <div class="k">料號</div><div class="v full">${r.sku}</div>
+    <div class="k">類別</div><div class="v alt">${r.cat}</div><div class="k">子類別</div><div class="v alt">${r.sub||'-'}</div>
+    <div class="k">品項</div><div class="v pad0 full"><input class="inp" id="edName" value="${esc(r.name)}"></div>
     <div class="k">單位</div><div class="v pad0">${selectHTML('edUnit',UNITS.map(u=>u.name),r.unit)}</div><div class="k">安全庫存數</div><div class="v pad0"><input class="inp" id="edSafe" type="number" value="${r.safe}"></div>
     <div class="k">單價</div><div class="v pad0 alt"><div class="inp-suffix" style="width:100%"><input class="inp" id="edPrice" type="number" value="${r.price}"><span>元</span></div></div>
     <div class="k">狀態</div><div class="v alt"><label class="radio"><input type="radio" name="edShelf" value="1" ${r.shelf?'checked':''}>上架</label><label class="radio"><input type="radio" name="edShelf" value="0" ${r.shelf?'':'checked'}>下架</label></div>
@@ -1520,38 +1552,75 @@ function submitBatch(){
   fr.readAsArrayBuffer(batchFileObj);
 }
 
-/* 分類管理 */
+/* 分類管理（主類別／子類別兩層）
+   規則：1. 第一個主類別「其它」為系統預設，不可修改、不可刪除
+         2. 每個主類別的第一個子類別不可刪除
+         3. 料號英文代碼輸入時自動轉大寫（僅保留英數字）
+         4. 新增主類別＝同時新增一個主類別與一個子類別 */
 let catDraft=[],unitDraft=[];
-function openCategory(){catDraft=CATEGORIES.map(c=>({...c}));unitDraft=UNITS.map(u=>({...u}));drawCatMgr();openModal('m-category');}
+const clone=o=>JSON.parse(JSON.stringify(o));
+function openCategory(){catDraft=clone(CATEGORIES).map(c=>({...c,open:true}));unitDraft=UNITS.map(u=>({...u}));drawCatMgr();openModal('m-category');}
+function codeInput(el){const p=el.selectionStart;el.value=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'');try{el.setSelectionRange(p,p);}catch(e){}return el.value;}
 function drawCatMgr(){
-  $('catBody').innerHTML=catDraft.map((c,k)=>`<tr><td>${k+1}</td>${c.fixed?`<td>${c.name}</td><td>${c.code}</td><td></td>`:
-    `<td class="pad0"><input class="inp" value="${esc(c.name)}" oninput="catDraft[${k}].name=this.value"></td><td class="pad0"><input class="inp" value="${esc(c.code)}" oninput="catDraft[${k}].code=this.value.toUpperCase()" style="text-transform:uppercase"></td><td class="pad0"><button class="icon-btn danger" onclick="catDel(${k})">${IC.trash}</button></td>`}</tr>`).join('');
+  const allOpen=catDraft.every(c=>c.open);
+  $('catToggleAll').innerHTML=(allOpen?IC.collapse:IC.expand)+(allOpen?'收合':'展開');
+  $('catBody').innerHTML=catDraft.map((c,k)=>{
+    let h=`<tr class="c-main"><td><button class="expander" title="${c.open?'收合':'展開'}" onclick="catDraft[${k}].open=!catDraft[${k}].open;drawCatMgr()">${c.open?IC.minusSm:IC.plusSm}</button></td><td>${k+1}</td>`+
+      (c.fixed?`<td><span class="ro">${esc(c.name)}</span></td><td><span class="ro">${esc(c.code)}</span></td><td></td>`
+      :`<td class="pad0"><input class="inp" value="${esc(c.name)}" placeholder="主類別名稱" oninput="catDraft[${k}].name=this.value"></td><td class="pad0"><input class="inp code-inp" value="${esc(c.code)}" placeholder="例如 STA" oninput="catDraft[${k}].code=codeInput(this)"></td><td class="pad0"><button class="icon-btn danger" title="刪除主類別" onclick="catDel(${k})">${IC.trash}</button></td>`)+`</tr>`;
+    if(c.open){
+      h+=c.subs.map((x,j)=>`<tr class="c-sub"><td></td><td>${k+1}-${j+1}</td><td class="pad0"><input class="inp" value="${esc(x.name)}" placeholder="子類別名稱" oninput="catDraft[${k}].subs[${j}].name=this.value"></td><td class="pad0"><input class="inp code-inp" value="${esc(x.code)}" placeholder="例如 PEN" oninput="catDraft[${k}].subs[${j}].code=codeInput(this)"></td><td class="pad0">${j===0?'':`<button class="icon-btn danger" title="刪除子類別" onclick="subDel(${k},${j})">${IC.trash}</button>`}</td></tr>`).join('');
+      h+=`<tr class="c-add"><td colspan="5"><button class="lnk" onclick="subAdd(${k})">${IC.plus}子類別</button></td></tr>`;
+    }
+    return h;
+  }).join('');
   $('unitBody').innerHTML=unitDraft.map((u,k)=>`<tr><td style="width:62px">${k+1}</td>${u.fixed?`<td>${u.name}</td><td style="width:44px"></td>`:
     `<td class="pad0"><input class="inp" value="${esc(u.name)}" oninput="unitDraft[${k}].name=this.value"></td><td class="pad0" style="width:44px"><button class="icon-btn danger" onclick="unitDel(${k})">${IC.trash}</button></td>`}</tr>`).join('');
 }
-function catDel(k){const c=CATEGORIES.find(x=>x.name===catDraft[k].name);if(c&&INVENTORY.some(r=>r.cat===c.name&&r.shelf)){toast('warning','不得刪除仍在架上的文具類別與單位名稱');return;}catDraft.splice(k,1);drawCatMgr();}
+function catToggleAll(){const open=!catDraft.every(c=>c.open);catDraft.forEach(c=>c.open=open);drawCatMgr();}
+const origCat=id=>CATEGORIES.find(c=>c.id===id);
+function catInUse(c){const o=origCat(c.id);return o&&INVENTORY.some(r=>r.cat===o.name&&r.shelf);}
+function subInUse(c,x){const o=origCat(c.id);const ox=o&&o.subs.find(y=>y.id===x.id);return ox&&INVENTORY.some(r=>r.cat===o.name&&r.sub===ox.name&&r.shelf);}
+function catDel(k){const c=catDraft[k];if(c.fixed)return;if(catInUse(c)){toast('warning','不得刪除仍在架上的文具類別與單位名稱');return;}catDraft.splice(k,1);drawCatMgr();}
+function subDel(k,j){if(j===0)return;const c=catDraft[k];if(subInUse(c,c.subs[j])){toast('warning','不得刪除仍在架上的文具類別與單位名稱');return;}c.subs.splice(j,1);drawCatMgr();}
+function catAdd(){catDraft.push({id:'c'+(++catSeq),name:'',code:'',open:true,subs:[{id:'s'+(++catSeq),name:'',code:''}]});drawCatMgr();const rows=$('catBody').querySelectorAll('tr.c-main');rows[rows.length-1].querySelector('input').focus();}
+function subAdd(k){catDraft[k].open=true;catDraft[k].subs.push({id:'s'+(++catSeq),name:'',code:''});drawCatMgr();const rows=$('catBody').querySelectorAll('tr.c-sub');let n=0;for(let i=0;i<=k;i++)n+=catDraft[i].open?catDraft[i].subs.length:0;rows[n-1].querySelector('input').focus();}
 function unitDel(k){if(INVENTORY.some(r=>r.unit===unitDraft[k].name&&r.shelf)){toast('warning','不得刪除仍在架上的文具類別與單位名稱');return;}unitDraft.splice(k,1);drawCatMgr();}
-function catAdd(){catDraft.push({name:'',code:''});drawCatMgr();$('catBody').querySelector('tr:last-child input').focus();}
 function unitAdd(){unitDraft.push({name:''});drawCatMgr();$('unitBody').querySelector('tr:last-child input').focus();}
 function saveCategory(){
-  const names=catDraft.map(c=>c.name.trim()),codes=catDraft.map(c=>c.code.trim());
-  if(names.some(n=>!n)||codes.some(c=>!c)||unitDraft.some(u=>!u.name.trim())){toast('warning','請填寫完整欄位');return;}
-  if(new Set(names).size<names.length){toast('warning','類別不得重複');return;}
-  if(new Set(codes).size<codes.length){toast('warning','料號英文代碼不得重複');return;}
-  if(new Set(unitDraft.map(u=>u.name.trim())).size<unitDraft.length){toast('warning','單位名稱不得重複');return;}
-  CATEGORIES=catDraft.map(c=>({...c,name:c.name.trim(),code:c.code.trim()}));UNITS=unitDraft.map(u=>({...u,name:u.name.trim()}));
+  const t=v=>String(v||'').trim();
+  const empty=catDraft.some(c=>!t(c.name)||!t(c.code)||c.subs.some(x=>!t(x.name)||!t(x.code)))||unitDraft.some(u=>!t(u.name));
+  if(empty){catDraft.forEach(c=>c.open=true);drawCatMgr();document.querySelectorAll('#catBody input,#unitBody input').forEach(i=>{if(!i.value.trim())i.classList.add('err');});toast('warning','請填寫完整欄位');return;}
+  const dup=a=>new Set(a).size<a.length;
+  if(dup(catDraft.map(c=>t(c.name)))){toast('warning','類別不得重複');return;}
+  if(dup(catDraft.map(c=>t(c.code)))){toast('warning','料號英文代碼不得重複');return;}
+  for(const c of catDraft){
+    if(dup(c.subs.map(x=>t(x.name)))){toast('warning',`「${t(c.name)}」的子類別不得重複`);return;}
+    if(dup(c.subs.map(x=>t(x.code)))){toast('warning','料號英文代碼不得重複');return;}
+  }
+  if(dup(unitDraft.map(u=>t(u.name)))){toast('warning','單位名稱不得重複');return;}
+  // 改名同步到庫存品項（已產生的料號維持不變）
+  catDraft.forEach(c=>{const o=origCat(c.id);if(!o)return;c.subs.forEach(x=>{const ox=o.subs.find(y=>y.id===x.id);if(!ox)return;
+    INVENTORY.forEach(r=>{if(r.cat===o.name&&r.sub===ox.name){r._cat=t(c.name);r._sub=t(x.name);}});});
+    INVENTORY.forEach(r=>{if(r.cat===o.name&&!r._cat)r._cat=t(c.name);});});
+  INVENTORY.forEach(r=>{if(r._cat){r.cat=r._cat;delete r._cat;}if(r._sub){r.sub=r._sub;delete r._sub;}});
+  CATEGORIES=catDraft.map(c=>({id:c.id,name:t(c.name),code:t(c.code),...(c.fixed?{fixed:true}:{}),subs:c.subs.map(x=>({id:x.id,name:t(x.name),code:t(x.code)}))}));
+  UNITS=unitDraft.map(u=>({...u,name:t(u.name)}));
   closeModal('m-category');renderInventory();toast('success','儲存設定');
 }
 
 /* 04-01 新增品項 */
 let addRows=[];
-function nextSku(cat,offset){const code=(CATEGORIES.find(c=>c.name===cat)||{code:'OTH'}).code;const n=INVENTORY.filter(r=>r.sku.startsWith(code)).length+offset+1;return code+String(n).padStart(4,'0');}
-function initAddItems(){addRows=[{cat:'文具',name:'黑色油性原子筆',img:IMG_PEN,unit:'支',stock:123,safe:100,price:10,shelf:true,note:''},{cat:'文具',name:'藍色油性原子筆',img:null,unit:'支',stock:123,safe:100,price:10,shelf:true,note:''},{cat:'文具',name:'紅色油性原子筆',img:IMG_PEN,unit:'支',stock:123,safe:100,price:10,shelf:true,note:''}];drawAddRows();}
+/* 料號 = 主類別代碼 + 子類別代碼 + 4 碼流水號（流水號依「主類別+子類別」各自累計） */
+function skuPrefix(cat,sub){const c=catOf(cat)||CATEGORIES[0];const x=c.subs.find(y=>y.name===sub)||c.subs[0];return c.code+x.code;}
+function nextSku(cat,sub,offset){const pre=skuPrefix(cat,sub);const max=INVENTORY.filter(r=>r.cat===cat&&r.sub===sub).reduce((m,r)=>Math.max(m,parseInt(r.sku.slice(-4))||0),0);return pre+String(max+offset+1).padStart(4,'0');}
+function initAddItems(){addRows=[{cat:'文具',sub:'原子筆',name:'黑色油性原子筆',img:IMG_PEN,unit:'支',stock:123,safe:100,price:10,shelf:true,note:''},{cat:'文具',sub:'原子筆',name:'藍色油性原子筆',img:null,unit:'支',stock:123,safe:100,price:10,shelf:true,note:''},{cat:'文具',sub:'原子筆',name:'紅色油性原子筆',img:IMG_PEN,unit:'支',stock:123,safe:100,price:10,shelf:true,note:''}];drawAddRows();}
 function drawAddRows(){
   const counter={};
-  $('addBody').innerHTML=addRows.map((r,k)=>{counter[r.cat]=(counter[r.cat]||0);const sku=nextSku(r.cat,counter[r.cat]++);r.sku=sku;return `<tr class="main">
+  $('addBody').innerHTML=addRows.map((r,k)=>{if(!subsOf(r.cat).some(x=>x.name===r.sub))r.sub=subsOf(r.cat)[0]?.name;const key=r.cat+'|'+r.sub;counter[key]=(counter[key]||0);const sku=nextSku(r.cat,r.sub,counter[key]++);r.sku=sku;return `<tr class="main">
     <td>${k+1}</td>
-    <td class="pad0" style="min-width:130px">${selectHTML('',CATEGORIES.map(c=>c.name),r.cat,`onchange="addRows[${k}].cat=this.value;drawAddRows()"`)}</td>
+    <td class="pad0" style="min-width:130px">${selectHTML('',CATEGORIES.map(c=>c.name),r.cat,`onchange="addRows[${k}].cat=this.value;addRows[${k}].sub=subsOf(this.value)[0]?.name;drawAddRows()"`)}</td>
+    <td class="pad0" style="min-width:130px">${selectHTML('',subsOf(r.cat).map(x=>x.name),r.sub,`onchange="addRows[${k}].sub=this.value;drawAddRows()"`)}</td>
     <td>${sku}</td>
     <td class="pad0" style="min-width:180px"><input class="inp" value="${esc(r.name)}" placeholder="品項名稱" oninput="addRows[${k}].name=this.value"></td>
     <td>${uploadBoxHTML(r.img,`readImg(this.files[0],d=>{addRows[${k}].img=d;drawAddRows()})`,`addRows[${k}].img=null;drawAddRows()`,true)}</td>
@@ -1562,14 +1631,14 @@ function drawAddRows(){
     <td><label class="radio"><input type="radio" name="sh${k}" ${r.shelf?'checked':''} onchange="addRows[${k}].shelf=true">上架</label><label class="radio"><input type="radio" name="sh${k}" ${r.shelf?'':'checked'} onchange="addRows[${k}].shelf=false">下架</label></td>
     <td class="pad0"><input class="inp" style="width:180px" value="${esc(r.note)}" oninput="addRows[${k}].note=this.value"></td>
     <td class="pad0"><button class="icon-btn danger" onclick="addRows.splice(${k},1);drawAddRows();toast('success','刪除品項')">${IC.trash}</button></td></tr>`;}).join('')
-    ||`<tr><td colspan="12" class="empty" style="height:120px">請點擊下方「+ 品項」新增</td></tr>`;
+    ||`<tr><td colspan="13" class="empty" style="height:120px">請點擊下方「+ 品項」新增</td></tr>`;
 }
-function addItemRow(){addRows.push({cat:CATEGORIES[CATEGORIES.length-1].name,name:'',img:null,unit:UNITS[1]?.name||'其它',stock:0,safe:0,price:0,shelf:true,note:''});drawAddRows();}
+function addItemRow(){const lc=CATEGORIES[CATEGORIES.length-1];addRows.push({cat:lc.name,sub:lc.subs[0]?.name,name:'',img:null,unit:UNITS[1]?.name||'其它',stock:0,safe:0,price:0,shelf:true,note:''});drawAddRows();}
 function submitAddItems(){
   if(!addRows.length){toast('warning','請新增至少一個品項');return;}
   const bad=addRows.findIndex(r=>!r.name.trim());
   if(bad>=0){toast('warning',`第 ${bad+1} 列請填寫品項名稱`);return;}
-  addRows.forEach(r=>{const it={sku:r.sku,cat:r.cat,name:r.name.trim(),stock:r.stock||0,used:0,safe:r.safe||0,shelf:r.shelf,unit:r.unit,price:r.price||0,note:r.note||'-',img:r.img};INVENTORY.push(it);addLog(it,'進貨',it.stock,it.price,it.price,'新增品項');});
+  addRows.forEach(r=>{const it={sku:r.sku,cat:r.cat,sub:r.sub,name:r.name.trim(),stock:r.stock||0,used:0,safe:r.safe||0,shelf:r.shelf,unit:r.unit,price:r.price||0,note:r.note||'-',img:r.img};INVENTORY.push(it);addLog(it,'進貨',it.stock,it.price,it.price,'新增品項');});
   toast('success','新增品項成功');go('inventory');
 }
 
@@ -1577,7 +1646,7 @@ function submitAddItems(){
 let adjRows=[];
 function initAdjust(){adjRows=INVENTORY.map(r=>({sku:r.sku,stock:r.stock,price:r.price,reason:'',img:r.img||null}));drawAdjust();}
 function drawAdjust(){
-  $('adjBody').innerHTML=adjRows.map((a,k)=>{const r=INVENTORY.find(x=>x.sku===a.sku);return `<tr class="main"><td>${k+1}</td><td>${r.sku}</td><td>${r.cat}</td><td>${esc(r.name)}</td>
+  $('adjBody').innerHTML=adjRows.map((a,k)=>{const r=INVENTORY.find(x=>x.sku===a.sku);return `<tr class="main"><td>${k+1}</td><td>${r.sku}</td><td>${r.cat}</td><td>${r.sub||'-'}</td><td>${esc(r.name)}</td>
     <td>${uploadBoxHTML(a.img,`readImg(this.files[0],d=>{adjRows[${k}].img=d;drawAdjust()})`,`adjRows[${k}].img=null;drawAdjust()`,true)}</td>
     <td>${r.stock}</td><td class="pad0"><input class="inp" type="number" style="width:140px" value="${a.stock}" oninput="adjRows[${k}].stock=+this.value"></td>
     <td>${r.price}</td><td class="pad0"><div class="inp-suffix" style="width:140px"><input class="inp" type="number" value="${a.price}" oninput="adjRows[${k}].price=+this.value"><span>元</span></div></td>
@@ -1587,7 +1656,7 @@ function drawAdjust(){
 function saveAdjust(){
   const changed=adjRows.filter(a=>{const r=INVENTORY.find(x=>x.sku===a.sku);return a.stock!==r.stock||a.price!==r.price||(a.img||null)!==(r.img||null);});
   const miss=changed.find(a=>!a.reason.trim()&&(()=>{const r=INVENTORY.find(x=>x.sku===a.sku);return a.stock!==r.stock||a.price!==r.price;})());
-  if(miss){const r=INVENTORY.find(x=>x.sku===miss.sku);const k=adjRows.indexOf(miss);$('adjBody').rows[k].cells[9].querySelector('input').classList.add('err');toast('warning',`「${r.name}」有異動，請填寫異動原因`);return;}
+  if(miss){const r=INVENTORY.find(x=>x.sku===miss.sku);const k=adjRows.indexOf(miss);$('adjBody').rows[k].cells[10].querySelector('input').classList.add('err');toast('warning',`「${r.name}」有異動，請填寫異動原因`);return;}
   if(!changed.length){toast('warning','沒有任何異動');return;}
   changed.forEach(a=>{const r=INVENTORY.find(x=>x.sku===a.sku);const diff=a.stock-r.stock,pb=r.price;r.stock=a.stock;r.price=a.price;r.img=a.img;if(diff||pb!==a.price)addLog(r,'調整庫存',diff,pb,a.price,a.reason.trim());});
   toast('success','儲存變更');go('inventory');
@@ -1607,7 +1676,7 @@ function renderLog(){
 
 /* ================= 05 領用月報表 ================= */
 const REPORT=INVENTORY.map(r=>({co:'大成長城企業股份有限公司',cc:'1600-資訊處',sku:r.sku,cat:r.cat,name:r.name,price:10,qty:10}));
-REPORT.push({co:'大成長城企業(歸仁)',cc:'1120-行政服務部',sku:'PAP0001',cat:'紙品',name:'A4影印紙80磅',price:40,qty:5},{co:'大成食品股份有限公司',cc:'1700-管理處',sku:'PEN0001',cat:'文具',name:'原子筆 (藍) 0.5mm',price:10,qty:12});
+REPORT.push({co:'大成長城企業(歸仁)',cc:'1120-行政服務部',sku:'PAPPRINT0001',cat:'紙品',sub:'影印紙',name:'A4影印紙80磅',price:40,qty:5},{co:'大成食品股份有限公司',cc:'1700-管理處',sku:'STAPEN0001',cat:'文具',name:'原子筆 (藍) 0.5mm',price:10,qty:12});
 const rpChecked=new Set();
 function renderReport(){
   if($('rpCo').options.length===1){
@@ -1632,8 +1701,8 @@ function rpExport(){
 }
 function invExport(){
   const cv=$('invCat').value,kw=($('invSearch').value||'').trim();
-  const list=INVENTORY.filter(r=>(invFilter==='全部'||(invFilter==='庫存不足'?low(r):!low(r)))&&(!cv||r.cat===cv)&&(!kw||r.name.includes(kw)));
-  const data=list.map(r=>({'料號':r.sku,'類別':r.cat,'品項':r.name,'目前庫存數':r.stock,'已領用數':r.used,'安全庫存數':r.safe,'庫存狀態':low(r)?'庫存不足':'庫存安全','狀態':r.shelf?'上架':'下架','單位':r.unit,'單價 (元)':r.price,'備註':r.note}));
+  const list=INVENTORY.filter(r=>(invFilter==='全部'||(invFilter==='庫存不足'?low(r):!low(r)))&&(!cv||r.cat===cv)&&(!$('invSub').value||r.sub===$('invSub').value)&&(!kw||r.name.includes(kw)));
+  const data=list.map(r=>({'料號':r.sku,'類別':r.cat,'子類別':r.sub||'','品項':r.name,'目前庫存數':r.stock,'已領用數':r.used,'安全庫存數':r.safe,'庫存狀態':low(r)?'庫存不足':'庫存安全','狀態':r.shelf?'上架':'下架','單位':r.unit,'單價 (元)':r.price,'備註':r.note}));
   if(exportXlsx(data,'庫存','庫存報表_2026-01-20.xlsx'))toast('success',`已輸出庫存報表（${data.length} 筆）`);
 }
 function exportXlsx(rows,sheet,filename){
@@ -1646,9 +1715,9 @@ function exportXlsx(rows,sheet,filename){
 function downloadSample(){
   if(!window.XLSX){toast('error','Excel 元件載入失敗，請檢查網路');return;}
   const H=['料號','品項','進貨量','異動單價 (元)','異動原因'];
-  const ws=XLSX.utils.aoa_to_sheet([H,['PAP0001','A4影印紙80磅',30,40,'進貨'],['PEN0001','原子筆 (藍) 0.5mm',100,10,'進貨'],['OTH0002','AA電池',50,40,'進貨']]);
+  const ws=XLSX.utils.aoa_to_sheet([H,['PAPPRINT0001','A4影印紙80磅',30,40,'進貨'],['STAPEN0001','原子筆 (藍) 0.5mm',100,10,'進貨'],['OTHBAT0002','AA電池',50,40,'進貨']]);
   ws['!cols']=[{wch:14},{wch:24},{wch:10},{wch:16},{wch:20}];
-  const note=XLSX.utils.aoa_to_sheet([['欄位','說明'],['料號','必填，需與庫存管理中的料號相同，例如 PAP0001'],['品項','選填，僅供對照，系統以料號為準'],['進貨量','必填，正整數'],['異動單價 (元)','選填，留空則沿用原單價'],['異動原因','選填，留空預設為「進貨」']]);
+  const note=XLSX.utils.aoa_to_sheet([['欄位','說明'],['料號','必填，需與庫存管理中的料號相同，例如 PAPPRINT0001'],['品項','選填，僅供對照，系統以料號為準'],['進貨量','必填，正整數'],['異動單價 (元)','選填，留空則沿用原單價'],['異動原因','選填，留空預設為「進貨」']]);
   note['!cols']=[{wch:16},{wch:48}];
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'進貨清單');XLSX.utils.book_append_sheet(wb,note,'填寫說明');
   try{XLSX.writeFile(wb,'批量進貨範例檔案.xlsx');toast('success','已下載範例檔案');}catch(e){toast('error','此環境不支援下載');}
