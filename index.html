@@ -12,7 +12,7 @@
 :root{
   /* surface */
   --sf-primary:#ffffff; --sf-secondary:#eedde4; --sf-bg:#fafafa; --sf-popup:#ffffff;
-  --sf-th:#f4ebef; /* tableHeader #dec1ce50 on white */
+  --sf-th:#dec1ce; /* 表頭底色 */
   --sf-disabled:#e7e4e7; --sf-invert:#2a212c; --sf-theme:#f8f2f4;
   /* text */
   --tx-1:#2a212c; --tx-2:#594c5b; --tx-3:#79697b; --tx-4:#a89ea9; --tx-dis:#d7d0d7; --tx-inv:#ffffff; --tx-theme:#8c4b67;
@@ -32,7 +32,7 @@
   --sh-soft:0 2px 8px rgba(0,0,0,.04); --sh-casted:0 4px 14px rgba(0,0,0,.08);
   --sh-elevated:0 8px 28px rgba(89,76,91,.18); --sh-theme:0 6px 18px rgba(140,75,103,.22);
   --radius:8px;
-  --font:'Montserrat','Noto Sans TC',system-ui,sans-serif;
+  --font:'Noto Sans TC',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -233,7 +233,7 @@ table.grid tr.subhead td{background:var(--sf-bg)!important;color:var(--tx-2)}
 .modal-body>*{flex-shrink:0}
 .modal-body{padding:20px;display:flex;flex-direction:column;gap:20px;max-height:calc(100vh - 230px);overflow:auto}
 .sect{border:1px solid var(--bd-3);border-radius:10px;overflow:hidden;background:#fff}
-.sect-h{background:var(--sf-secondary);padding:10px 12px;font-size:18px;font-weight:600}
+.sect-h{background:var(--bd-theme);padding:10px 12px;color: var(--tx-inv);font-size:18px;font-weight:600}
 .kv{display:grid;grid-template-columns:140px 1fr 140px 1fr}
 .kv>div{min-height:46px;display:flex;align-items:center;padding:3px 12px;border-bottom:1px solid var(--bd-3);overflow:hidden}
 .kv>.k{background:var(--sf-th);color:var(--tx-3);justify-content:center;border-right:1px solid var(--bd-3);white-space:nowrap}
@@ -246,7 +246,7 @@ table.grid tr.subhead td{background:var(--sf-bg)!important;color:var(--tx-2)}
 .kv .inp,.kv .select-wrap select{height:38px}
 .kv>.v.img{min-height:104px}
 table.mt{width:100%;border-collapse:collapse}
-table.mt th{background:var(--sf-th);color:var(--tx-3);font-weight:500;text-align:left;height:44px;padding:0 12px;border-bottom:1px solid var(--bd-3)}
+table.mt th{background:var(--sf-th);color:var(--tx-2);font-weight:500;text-align:left;height:44px;padding:0 12px;border-bottom:1px solid var(--bd-3)}
 table.mt td{height:50px;padding:0 12px;border-bottom:1px solid var(--bd-3)}
 table.mt td+td,table.mt th+th{border-left:1px solid var(--bd-3)}
 table.mt tbody tr:nth-child(even) td{background:var(--sf-theme)}
@@ -650,7 +650,7 @@ table.mt.cat-tree .code-inp{text-transform:uppercase}
       <div class="tscroll" style="min-height:560px">
         <table class="grid" id="ovTable"><thead><tr>
           <th style="width:44px"><input type="checkbox" class="chk" id="ovAll" onchange="ovToggleAll(this.checked)"></th><th style="width:36px;padding:0"></th>
-          <th>申請單號</th><th>申請領用日期</th><th>申請領用時段</th><th>狀態</th><th>動作</th><th>填單人員</th><th>申請人員</th><th>公司別</th><th>成本中心</th><th>聯絡電話/分機</th><th>備註</th><th>管理者訊息</th><th>實際領用時間</th><th>填單日期</th>
+          <th>申請單號</th><th>填單人員</th><th>申請人員</th><th>申請領用日期</th><th>申請領用時段</th><th>公司別</th><th>成本中心</th><th>聯絡電話/分機</th><th>實際領用時間</th><th>狀態</th><th>動作</th><th>管理者訊息</th><th>填單日期</th><th>備註</th>
         </tr></thead><tbody id="ovBody"></tbody></table>
       </div>
       <div class="pager" id="ovPager"></div>
@@ -1373,9 +1373,12 @@ function renderOverview(){
   $('ovBody').innerHTML=list.map(o=>{const i=ORDERS.indexOf(o);return `<tr class="main">
     <td><input type="checkbox" class="chk" ${ovChecked.has(i)?'checked':''} onchange="this.checked?ovChecked.add(${i}):ovChecked.delete(${i});ovSyncAll()"></td>
     <td style="padding:0"><button class="expander" onclick="ORDERS[${i}].open=!ORDERS[${i}].open;renderOverview()">${o.open?IC.minusSm:IC.plusSm}</button></td>
-    <td>${o.no}</td><td>${o.date}</td><td>${o.slot}</td><td>${pill(o.status,OV_STATUS)}</td>
+    <td>${o.no}</td><td>${o.filler}</td><td>${o.user}</td><td>${o.date}</td><td>${o.slot}</td>
+    <td><span class="truncate" title="${esc(o.co)}">${esc(o.co)}</span></td><td>${o.cc}</td><td>${o.tel}</td>
+    <td>${o.actual?`<span class="truncate" style="max-width:130px" title="${o.actual}">${o.actual}</span>`:''}</td>
+    <td>${pill(o.status,OV_STATUS)}</td>
     <td>${o.status==='待領用'?`<span class="row-acts"><button class="lnk" onclick="openConfirm([${i}])">${IC.check}確認領用</button><span class="sep"></span><button class="lnk danger" onclick="openReturn([${i}])">${IC.undo}退回</button></span>`:''}</td>
-    <td>${o.filler}</td><td>${o.user}</td><td><span class="truncate" title="${esc(o.co)}">${esc(o.co)}</span></td><td>${o.cc}</td><td>${o.tel}</td><td>${esc(o.note)}</td><td>${esc(o.msg)}</td><td>${o.actual?`<span class="truncate" style="max-width:130px" title="${o.actual}">${o.actual}</span>`:''}</td><td>${o.fill}</td></tr>`+
+    <td>${esc(o.msg)}</td><td>${o.fill}</td><td>${esc(o.note)}</td></tr>`+
     (o.open?`<tr class="subhead"><td></td><td></td><td colspan="4">料號</td><td colspan="3">品項</td><td colspan="2">申請數量</td><td colspan="3">實際領用數量</td><td colspan="2">單位</td></tr>`+
       o.items.map(it=>`<tr class="sub"><td></td><td></td><td colspan="4">${it.sku}</td><td colspan="3">${esc(it.name)}</td><td colspan="2">${it.qty}</td><td colspan="3">${o.status==='已領用'?it.act:''}</td><td colspan="2">${it.unit}</td></tr>`).join(''):'');}).join('')
     ||`<tr><td colspan="16" class="empty" style="height:200px">沒有符合條件的領用單</td></tr>`;
